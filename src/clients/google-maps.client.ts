@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { decode } from '@googlemaps/polyline-codec';
 
+// ajustar pra pegar as envs com o configService
 @Injectable()
 export default class GoogleMapsClient {
   private readonly apiKey: string;
@@ -39,8 +40,7 @@ export default class GoogleMapsClient {
 
   async getElevationGainFromPolyline(
     polyline: string,
-    apiKey: string,
-  ): Promise<number> {
+  ): Promise<{ gain: number; loss: number }> {
     const path = decode(polyline); // retorna [{ lat, lng }]
     const locations = path
       .slice(0, 512) // limite da API
@@ -48,7 +48,7 @@ export default class GoogleMapsClient {
       .join('|');
 
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/elevation/json?locations=${locations}&key=${apiKey}`,
+      `https://maps.googleapis.com/maps/api/elevation/json?locations=${locations}&key=${this.apiKey}`,
     );
 
     const data = await response.json();
@@ -57,11 +57,17 @@ export default class GoogleMapsClient {
     const elevations = data.results.map((r) => r.elevation);
 
     let gain = 0;
+    let loss = 0;
+
     for (let i = 1; i < elevations.length; i++) {
       const delta = elevations[i] - elevations[i - 1];
       if (delta > 0) gain += delta;
+      if (delta < 0) loss += Math.abs(delta);
     }
 
-    return Math.round(gain); // metros
+    return {
+      gain: Math.round(gain),
+      loss: Math.round(loss),
+    };
   }
 }
