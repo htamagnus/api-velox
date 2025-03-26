@@ -211,10 +211,15 @@ export class AthleteService {
       durationHours: estimatedTimeHours,
     });
 
+    const elevation =
+      await this.googleMapsClient.getElevationGainFromPolyline(polyline);
+
     return {
       distanceKm,
       estimatedTimeMinutes: Math.round(estimatedTimeMinutes),
       estimatedCalories,
+      elevationGain: elevation.gain,
+      elevationLoss: elevation.loss,
       polyline,
     };
   }
