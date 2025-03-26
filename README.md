@@ -12,6 +12,8 @@ Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota c
 | **RF01** | O usuário deve preencher seus dados cadastrais: **altura, peso, idade**. |
 | **RF02** | O usuário deve preencher sua **velocidade média por modalidade** (ex: Road, MTB). |
 | **RF03** | O usuário pode optar por **importar esses dados automaticamente do Strava**, via OAuth. |
+| **RF03.1** | O app deve exibir um botão com o texto **"Descubra sua média geral integrando com o Strava"** durante o onboarding. |
+| **RF03.2** | Após a importação da média geral do Strava, o app deve direcionar o usuário para uma etapa onde ele possa **preencher manualmente as médias por modalidade (Road e MTB)**, com sugestão de que isso melhora a precisão. |
 | **RF04** | O app deve **bloquear a criação de rotas** caso os dados obrigatórios (médias por modalidade) não estejam preenchidos. |
 | **RF05** | O app deve permitir que o usuário **insira origem e destino de uma rota**. |
 | **RF06** | O app deve consumir a **Google Directions API** para obter a distância da rota. |
