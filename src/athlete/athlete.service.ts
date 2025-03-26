@@ -33,25 +33,7 @@ export class AthleteService {
     return athlete;
   }
 
-  async createAthleteProfile(
-    strategy: 'strava' | 'manual',
-    data: any,
-  ): Promise<AthleteEntity> {
-    switch (strategy) {
-      case 'strava':
-        return this.createAthleteFromStrava(data.code);
-
-      case 'manual':
-        return this.createAthleteManually(data);
-
-      default:
-        throw new Error('Invalid athlete creation strategy');
-    }
-  }
-
-  private async createAthleteManually(
-    data: CreateAthleteDto,
-  ): Promise<AthleteEntity> {
+  async createAthleteProfile(data: CreateAthleteDto): Promise<AthleteEntity> {
     const athlete = this.athleteRepository.create({
       name: data.name,
       age: data.age,
@@ -121,53 +103,43 @@ export class AthleteService {
     return this.athleteRepository.save(athleteEntity);
   }
 
-  async getValidAccessToken(athlete: AthleteEntity): Promise<string> {
-    const now = Math.floor(Date.now() / 1000); // tempo atual em segundos
+  async getStravaAverageSpeed(
+    id: string,
+    code: string,
+  ): Promise<{ averageSpeedStrava: number }> {
+    const athlete = await this.athleteRepository.findOneOrFail({
+      where: { id },
+    });
 
-    if (athlete.tokenExpiresAt && now < athlete.tokenExpiresAt) {
-      return athlete.accessToken; // token ainda é válido
-    }
+    const tokenResponse = await this.stravaClient.exchangeCodeForToken(code);
+    const {
+      access_token,
+      refresh_token,
+      athlete: stravaAthlete,
+    } = tokenResponse;
 
-    // token expirou
-    const newToken = await this.stravaClient.refreshAccessToken(
-      athlete.refreshToken,
+    const stravaId = stravaAthlete.id.toString();
+
+    const activities = await this.stravaClient.getActivities(access_token);
+    const rideActivities = activities.filter((a) => a.type === 'Ride');
+
+    const totalSpeed = rideActivities.reduce(
+      (sum, activity) => sum + activity.average_speed,
+      0,
     );
+    const averageSpeed = totalSpeed / rideActivities.length;
+    const averageSpeedKmH = averageSpeed * 3.6;
 
-    athlete.accessToken = newToken.access_token;
-    athlete.refreshToken = newToken.refresh_token;
-    athlete.tokenExpiresAt = newToken.expires_at;
+    athlete.accessToken = access_token;
+    athlete.refreshToken = refresh_token;
+    athlete.tokenExpiresAt = tokenResponse.expires_at;
+    athlete.stravaId = stravaId;
+    athlete.averageSpeedStrava = averageSpeedKmH;
 
     await this.athleteRepository.save(athlete);
 
-    return newToken.access_token;
+    return { averageSpeedStrava: averageSpeedKmH };
   }
-
-  // async updateAverageSpeed(athleteId: string): Promise<AthleteEntity> {
-  //   const athlete = await this.athleteRepository.findOneBy({ id: athleteId });
-
-  //   if (!athlete) {
-  //     throw new Error('Athlete not found');
-  //   }
-
-  //   const accessToken = await this.getValidAccessToken(athlete);
-  //   const activities = await this.stravaClient.getActivities(accessToken);
-  //   const rideActivities = activities.filter((a) => a.type === 'Ride');
-
-  //   if (!rideActivities.length) {
-  //     throw new Error('No ride activities found');
-  //   }
-
-  //   const totalSpeed = rideActivities.reduce(
-  //     (sum, activity) => sum + activity.average_speed,
-  //     0,
-  //   );
-  //   const averageSpeed = totalSpeed / rideActivities.length;
-  //   const averageSpeedKmH = averageSpeed * 3.6;
-
-  //   athlete.averageSpeedRoad = averageSpeedKmH;
-
-  //   return this.athleteRepository.save(athlete);
-  // }
 
   async getAthleteProfileCompleteness(
     id: string,

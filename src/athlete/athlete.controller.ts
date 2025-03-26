@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AthleteService } from './athlete.service';
 import { CreateAthleteDto } from './dto/create-athlete.dto';
-import { CreateAthleteFromStravaDto } from './dto/create-athlete-strava.dto';
 import {
   GetPlannedRouteInputDto,
   GetPlannedRouteResponseDto,
@@ -28,10 +27,17 @@ export class AthleteController {
 
   @Post('/create')
   async createAthleteProfile(
-    @Body() payload: CreateAthleteDto | CreateAthleteFromStravaDto,
-    @Query('strategy') strategy: 'strava' | 'manual',
+    @Body() payload: CreateAthleteDto,
   ): Promise<CreateAthleteDto> {
-    return this.athleteService.createAthleteProfile(strategy, payload);
+    return this.athleteService.createAthleteProfile(payload);
+  }
+
+  @Get('/:id/discover-strava-average')
+  async discoverAverageSpeedFromStrava(
+    @Param('id') id: string,
+    @Query('code') code: string,
+  ): Promise<{ averageSpeedStrava: number }> {
+    return this.athleteService.getStravaAverageSpeed(id, code);
   }
 
   @Get('/completeness/:id')
