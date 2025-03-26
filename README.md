@@ -43,7 +43,7 @@ Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota c
 | **RB01** | É obrigatório que o usuário preencha os dados pessoais e velocidades médias antes de acessar o planejador de rotas. |
 | **RB02** | A velocidade média pode ser preenchida manualmente ou ser importada do Strava. |
 | **RB03** | O cálculo de calorias será baseado em fórmulas aproximadas utilizando: peso, tempo estimado, e tipo de atividade (modalidade). |
-| **RB04** | Cada modalidade (road, MTB, etc.) tem sua própria velocidade média associada. |
-| **RB06** | Cada modalidade (road, MTB, etc.) tem sua própria velocidade média associada e usada nos cálculos. |
+| **RB04** | Cada modalidade (road, MTB, etc.) tem sua própria velocidade média associada e usada nos cálculos. |
+| **RB05** | Caso o usuário integre com o Strava, o campo averageSpeedStrava será preenchido automaticamente com a média geral. Ainda assim, o usuário poderá (e será incentivado a) inserir manualmente suas médias específicas por modalidade para maior precisão no planejamento:. |
 
 ---
