@@ -1,51 +1,90 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { z } from 'zod';
 
+const stravaActivitySchema = z.array(
+  z.object({
+    id: z.number(),
+    name: z.string(),
+    type: z.string(),
+    average_speed: z.number(),
+    distance: z.number(),
+    moving_time: z.number(),
+  }),
+);
+
+const stravaTokenSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+  expires_at: z.number(),
+  athlete: z.object({
+    id: z.number(),
+    username: z.string().nullable(),
+    firstname: z.string(),
+    lastname: z.string(),
+  }),
+});
+
+export type StravaActivity = z.infer<typeof stravaActivitySchema>[0];
+export type StravaToken = z.infer<typeof stravaTokenSchema>;
 @Injectable()
 export default class StravaClient {
-  private readonly clientId: string;
-  private readonly clientSecret: string;
-  private readonly redirectUri: string;
-  private readonly baseUrl: string;
-
-  constructor() {
-    this.clientId = process.env.STRAVA_CLIENT_ID;
-    this.clientSecret = process.env.STRAVA_CLIENT_SECRET;
-    this.redirectUri = process.env.STRAVA_REDIRECT_URI;
-    this.baseUrl = 'https://www.strava.com/api/v3';
+  constructor(protected readonly configService: ConfigService) {
+    this.stravaClientId = this.configService.getOrThrow('STRAVA_CLIENT_ID');
+    this.stravaClientSecret = this.configService.getOrThrow(
+      'STRAVA_CLIENT_SECRET',
+    );
+    this.stravaBaseUrl = this.configService.getOrThrow('STRAVA_API_URL');
   }
 
-  // TO DO: tipar todos os retornos
+  protected stravaClientId: string;
+  protected stravaClientSecret: string;
+  protected stravaBaseUrl: string;
 
   async exchangeCodeForToken(code: string) {
-    console.log('code', code);
-    const response = await fetch('https://www.strava.com/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        code,
-        grant_type: 'authorization_code',
-      }),
-    });
+    try {
+      const response = await fetch('https://www.strava.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: this.stravaClientId,
+          client_secret: this.stravaClientSecret,
+          code,
+          grant_type: 'authorization_code',
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error('Erro ao trocar o code pelo token do Strava');
+      const data = await response.json();
+      return stravaTokenSchema.parse(data);
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching: ${error instanceof Error ? error.message : 'unknown error'}`,
+        HttpStatus.BAD_GATEWAY,
+      );
     }
-
-    return response.json(); // access_token, refresh_token, athlete, etc.
   }
 
-  async getActivities(accessToken: string, page = 1, perPage = 30) {
-    const response = await fetch(
-      `${this.baseUrl}/athlete/activities?page=${page}&per_page=${perPage}`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+  async getActivities(
+    accessToken: string,
+    page = 1,
+    perPage = 30,
+  ): Promise<StravaActivity[]> {
+    try {
+      const response = await fetch(
+        `${this.stravaBaseUrl}/athlete/activities?page=${page}&per_page=${perPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      },
-    );
-    console.log('response', response);
-    return response.json();
+      );
+      const data = await response.json();
+      return stravaActivitySchema.parse(data);
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching activities: ${error instanceof Error ? error.message : 'unknown error'}`,
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 }
