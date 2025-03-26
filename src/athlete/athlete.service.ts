@@ -10,6 +10,7 @@ import {
 } from './dto/create-route.dto';
 import GoogleMapsClient from 'src/clients/google-maps.client';
 import { calculateCalories } from 'src/utils/calculate-calories.utils';
+import { UpdateAthleteDto } from './dto/update-athlete.dto';
 
 @Injectable()
 export class AthleteService {
@@ -19,6 +20,18 @@ export class AthleteService {
     private readonly stravaClient: StravaClient,
     private readonly googleMapsClient: GoogleMapsClient,
   ) {}
+
+  async getAthleteById(id: string): Promise<AthleteEntity> {
+    const athlete = await this.athleteRepository.findOne({
+      where: { id },
+    });
+
+    if (!athlete) {
+      throw new Error('Athlete not found');
+    }
+
+    return athlete;
+  }
 
   async createAthleteProfile(
     strategy: 'strava' | 'manual',
@@ -222,5 +235,13 @@ export class AthleteService {
       elevationLoss: elevation.loss,
       polyline,
     };
+  }
+
+  async updateAthleteData(
+    athleteId: string,
+    data: UpdateAthleteDto,
+  ): Promise<AthleteEntity> {
+    await this.athleteRepository.update({ id: athleteId }, data);
+    return this.athleteRepository.findOneOrFail({ where: { id: athleteId } });
   }
 }

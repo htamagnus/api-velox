@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Get,
+  Query,
+  Patch,
+} from '@nestjs/common';
 import { AthleteService } from './athlete.service';
 import { CreateAthleteDto } from './dto/create-athlete.dto';
 import { CreateAthleteFromStravaDto } from './dto/create-athlete-strava.dto';
@@ -6,10 +14,17 @@ import {
   GetPlannedRouteInputDto,
   GetPlannedRouteResponseDto,
 } from './dto/create-route.dto';
+import { UpdateAthleteDto } from './dto/update-athlete.dto';
+import { AthleteEntity } from './entities/athlete.entity';
 
 @Controller('athlete')
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
+
+  @Get('/:id')
+  async getAthlete(@Param('id') id: string): Promise<AthleteEntity> {
+    return this.athleteService.getAthleteById(id);
+  }
 
   @Post('/create')
   async createAthleteProfile(
@@ -32,5 +47,13 @@ export class AthleteController {
     @Body() payload: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
     return this.athleteService.createRoute(id, payload);
+  }
+
+  @Patch('/:id/update')
+  async updateAthlete(
+    @Param('id') id: string,
+    @Body() body: UpdateAthleteDto,
+  ): Promise<AthleteEntity> {
+    return this.athleteService.updateAthleteData(id, body);
   }
 }
