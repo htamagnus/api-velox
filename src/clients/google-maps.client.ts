@@ -1,20 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { decode } from '@googlemaps/polyline-codec';
+import { ConfigService } from '@nestjs/config';
 
 // ajustar pra pegar as envs com o configService
 @Injectable()
 export default class GoogleMapsClient {
-  private readonly apiKey: string;
-
-  constructor() {
-    this.apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  constructor(protected readonly configService: ConfigService) {
+    this.googleMapsApiKey = this.configService.getOrThrow(
+      'GOOGLE_MAPS_API_KEY',
+    );
   }
+
+  protected googleMapsApiKey: string;
 
   async getRoute(origin: string, destination: string) {
     const encodedOrigin = encodeURIComponent(origin);
     const encodedDestination = encodeURIComponent(destination);
 
-    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodedOrigin}&destination=${encodedDestination}&mode=bicycling&key=${this.apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodedOrigin}&destination=${encodedDestination}&mode=bicycling&key=${this.googleMapsApiKey}`;
 
     const response = await fetch(url);
 
@@ -48,7 +51,7 @@ export default class GoogleMapsClient {
       .join('|');
 
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/elevation/json?locations=${locations}&key=${this.apiKey}`,
+      `https://maps.googleapis.com/maps/api/elevation/json?locations=${locations}&key=${this.googleMapsApiKey}`,
     );
 
     const data = await response.json();
