@@ -11,6 +11,8 @@ const createRouteResponseDto = z.object({
   distanceKm: z.number(),
   estimatedTimeMinutes: z.number(),
   estimatedCalories: z.number(),
+  elevationGain: z.number(),
+  elevationLoss: z.number(),
   polyline: z.string(),
 });
 
