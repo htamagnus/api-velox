@@ -13,13 +13,7 @@ const googleRoutesSchema = z.object({
   polyline: z.string(),
 });
 
-const googleElevationSchema = z.object({
-  gain: z.number(),
-  loss: z.number(),
-});
-
 type GoogleRoute = z.infer<typeof googleRoutesSchema>;
-type GoogleElevation = z.infer<typeof googleElevationSchema>;
 
 @Injectable()
 export default class GoogleMapsClient {
@@ -65,7 +59,7 @@ export default class GoogleMapsClient {
     }
   }
 
-  async getElevationFromPolyline(polyline: string): Promise<GoogleElevation> {
+  async getElevationFromPolyline(polyline: string): Promise<number[]> {
     try {
       const path = decode(polyline);
       const locations = path
@@ -80,21 +74,7 @@ export default class GoogleMapsClient {
       const data = await response.json();
       if (!data.results) throw new GoogleElevationNotFoundError();
 
-      const elevations = data.results.map((r) => r.elevation);
-
-      let gain = 0;
-      let loss = 0;
-
-      for (let i = 1; i < elevations.length; i++) {
-        const delta = elevations[i] - elevations[i - 1];
-        if (delta > 0) gain += delta;
-        if (delta < 0) loss += Math.abs(delta);
-      }
-
-      return googleElevationSchema.parse({
-        gain: Math.round(gain),
-        loss: Math.round(loss),
-      });
+      return data.results.map((r) => r.elevation);
     } catch (error) {
       throw new HttpException(
         `Error fetching elevation: ${error instanceof Error ? error.message : 'unknown error'}`,

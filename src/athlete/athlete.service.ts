@@ -9,13 +9,13 @@ import {
   GetPlannedRouteResponseDto,
 } from './dto/create-route.dto';
 import GoogleMapsClient from 'src/clients/google-maps.client';
-import { calculateCalories } from 'src/utils/calculate-calories.utils';
 import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import {
   AthleteNotFoundError,
   AverageSpeedNotSetError,
   RideActivitiesNotFoundError,
 } from 'src/errors';
+import { calculateCalories, calculateElevationGainAndLoss } from 'src/utils';
 
 @Injectable()
 export class AthleteService {
@@ -141,15 +141,16 @@ export class AthleteService {
       durationHours: estimatedTimeHours,
     });
 
-    const elevation =
+    const elevations =
       await this.googleMapsClient.getElevationFromPolyline(polyline);
+    const { gain, loss } = calculateElevationGainAndLoss(elevations);
 
     return {
       distanceKm,
       estimatedTimeMinutes: Math.round(estimatedTimeMinutes),
       estimatedCalories,
-      elevationGain: elevation.gain,
-      elevationLoss: elevation.loss,
+      elevationGain: gain,
+      elevationLoss: loss,
       polyline,
     };
   }
