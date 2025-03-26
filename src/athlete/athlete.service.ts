@@ -4,7 +4,12 @@ import StravaClient from 'src/clients/strava.client';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AthleteEntity } from './entities/athlete.entity';
 import { Repository } from 'typeorm';
-import { EstimateCaloriesDto } from './dto/estimate-calories.dto';
+import {
+  GetPlannedRouteInputDto,
+  GetPlannedRouteResponseDto,
+} from './dto/create-route.dto';
+import GoogleMapsClient from 'src/clients/google-maps.client';
+import { calculateCalories } from 'src/utils/calculate-calories.utils';
 
 @Injectable()
 export class AthleteService {
@@ -12,6 +17,7 @@ export class AthleteService {
     @InjectRepository(AthleteEntity)
     private readonly athleteRepository: Repository<AthleteEntity>,
     private readonly stravaClient: StravaClient,
+    private readonly googleMapsClient: GoogleMapsClient,
   ) {}
 
   async createAthleteProfile(
@@ -172,38 +178,44 @@ export class AthleteService {
     return { completed };
   }
 
-  async estimateCalories(
+  async createRoute(
     athleteId: string,
-    payload: EstimateCaloriesDto,
-  ): Promise<{ estimatedCalories: number }> {
+    dto: GetPlannedRouteInputDto,
+  ): Promise<GetPlannedRouteResponseDto> {
     const athlete = await this.athleteRepository.findOne({
       where: { id: athleteId },
     });
+    if (!athlete) throw new Error('Athlete not found');
 
-    if (!athlete) {
-      throw new Error('Athlete not found');
-    }
+    const { origin, destination, modality } = dto;
 
-    const { durationMinutes, type } = payload;
-    const weightKg = athlete.weight;
-
-    if (!weightKg) {
-      throw new Error('Athlete weight is required to estimate calories');
-    }
-
-    const durationHours = durationMinutes / 60;
+    const directions = await this.googleMapsClient.getRoute(
+      origin,
+      destination,
+    );
+    const distanceKm = directions.distanceMeters / 1000;
+    const polyline = directions.polyline;
 
     const averageSpeed =
-      type === 'road' ? athlete.averageSpeedRoad : athlete.averageSpeedMtb;
+      modality === 'road' ? athlete.averageSpeedRoad : athlete.averageSpeedMtb;
 
-    // MET estimado com base na velocidade
-    let MET = 8;
-    if (averageSpeed > 22) MET = 10;
-    if (averageSpeed > 26) MET = 12;
-    if (averageSpeed > 30) MET = 14;
+    if (!averageSpeed)
+      throw new Error('Average speed not set for this modality');
 
-    const estimatedCalories = Math.round(MET * weightKg * durationHours);
+    const estimatedTimeHours = distanceKm / averageSpeed;
+    const estimatedTimeMinutes = estimatedTimeHours * 60;
 
-    return { estimatedCalories };
+    const estimatedCalories = calculateCalories({
+      weightKg: athlete.weight,
+      averageSpeed,
+      durationHours: estimatedTimeHours,
+    });
+
+    return {
+      distanceKm,
+      estimatedTimeMinutes: Math.round(estimatedTimeMinutes),
+      estimatedCalories,
+      polyline,
+    };
   }
 }
