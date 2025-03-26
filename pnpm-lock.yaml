@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@googlemaps/polyline-codec':
+        specifier: ^1.0.28
+        version: 1.0.28
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.4.15(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -322,6 +325,9 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@googlemaps/polyline-codec@1.0.28':
+    resolution: {integrity: sha512-m7rh8sbxlrHvebXEweBHX8r1uPtToPRYxWDD6p6k2YG8hyhBe0Wi6xRUVFpxpEseMNgF+OBotFQC5senj8K7TQ==}
 
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
@@ -3258,6 +3264,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@googlemaps/polyline-codec@1.0.28': {}
 
   '@humanwhocodes/config-array@0.13.0':
     dependencies:

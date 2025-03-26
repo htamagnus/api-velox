@@ -14,6 +14,8 @@ export default class StravaClient {
     this.baseUrl = 'https://www.strava.com/api/v3';
   }
 
+  // TO DO: tipar todos os retornos
+
   async exchangeCodeForToken(code: string) {
     console.log('code', code);
     const response = await fetch('https://www.strava.com/oauth/token', {
