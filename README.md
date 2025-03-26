@@ -49,5 +49,6 @@ Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota c
 | **RB05** | O usuário pode preencher a média geral (averageSpeedGeneral) manualmente ou importar automaticamente do Strava. |
 | **RB06** | Caso a média seja importada via Strava, a flag averageSpeedGeneralIsFromStrava deve ser marcada como true. |
 | **RB07** | O app incentivará o preenchimento manual das médias específicas por modalidade (averageSpeedRoad, averageSpeedMtb) para garantir maior precisão no planejamento de rotas. |
+| **RB08** | A média importada do Strava deve ser baseada nas últimas 30 atividades do tipo “Ride”. |
 
 ---
