@@ -157,7 +157,7 @@ export class AthleteService {
 
   async updateAthleteData(
     athleteId: string,
-    data: UpdateAthleteDto,
+    data: Partial<UpdateAthleteDto>,
   ): Promise<AthleteEntity> {
     await this.athleteRepository.update({ id: athleteId }, data);
     return this.athleteRepository.findOneOrFail({ where: { id: athleteId } });
