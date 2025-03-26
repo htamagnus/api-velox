@@ -24,20 +24,14 @@ export class AthleteEntity {
   averageSpeedMtb?: number;
 
   @Column({ type: 'float', nullable: true })
-  averageSpeedStrava?: number;
+  averageSpeedGeneral?: number;
 
   @Column({ nullable: true, unique: true })
   stravaId: string;
 
-  @Column()
-  accessToken: string;
-
-  @Column({ nullable: true })
-  refreshToken?: string;
-
   @Column({ default: false })
   isProfileComplete: boolean;
 
-  @Column({ type: 'bigint', nullable: true })
-  tokenExpiresAt: number;
+  @Column({ nullable: true })
+  averageSpeedGeneralIsFromStrava?: boolean;
 }

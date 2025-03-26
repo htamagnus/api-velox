@@ -36,7 +36,7 @@ export class AthleteController {
   async discoverAverageSpeedFromStrava(
     @Param('id') id: string,
     @Query('code') code: string,
-  ): Promise<{ averageSpeedStrava: number }> {
+  ): Promise<{ averageSpeedGeneral: number }> {
     return this.athleteService.getStravaAverageSpeed(id, code);
   }
 

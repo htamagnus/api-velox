@@ -46,9 +46,7 @@ export class AthleteService {
       height: data.height,
       averageSpeedRoad: data.averageSpeedRoad,
       averageSpeedMtb: data.averageSpeedMtb,
-      isProfileComplete: true,
-      stravaId: null,
-      accessToken: '',
+      averageSpeedGeneral: data.averageSpeedGeneral,
     });
     return this.athleteRepository.save(athlete);
   }
@@ -56,15 +54,11 @@ export class AthleteService {
   async getStravaAverageSpeed(
     id: string,
     code: string,
-  ): Promise<{ averageSpeedStrava: number }> {
+  ): Promise<{ averageSpeedGeneral: number }> {
     const athlete = await this.findAthleteOrThrow(id);
 
     const tokenResponse = await this.stravaClient.exchangeCodeForToken(code);
-    const {
-      access_token,
-      refresh_token,
-      athlete: stravaAthlete,
-    } = tokenResponse;
+    const { access_token, athlete: stravaAthlete } = tokenResponse;
 
     const stravaId = stravaAthlete.id.toString();
 
@@ -82,15 +76,13 @@ export class AthleteService {
     const averageSpeed = totalSpeed / rideActivities.length;
     const averageSpeedKmH = averageSpeed * 3.6;
 
-    athlete.accessToken = access_token;
-    athlete.refreshToken = refresh_token;
-    athlete.tokenExpiresAt = tokenResponse.expires_at;
     athlete.stravaId = stravaId;
-    athlete.averageSpeedStrava = averageSpeedKmH;
+    athlete.averageSpeedGeneral = averageSpeedKmH;
+    athlete.averageSpeedGeneralIsFromStrava = true;
 
     await this.athleteRepository.save(athlete);
 
-    return { averageSpeedStrava: averageSpeedKmH };
+    return { averageSpeedGeneral: averageSpeedKmH };
   }
 
   async getAthleteProfileCompleteness(
@@ -101,7 +93,7 @@ export class AthleteService {
     const requiredFields = [
       athlete.averageSpeedRoad,
       athlete.averageSpeedMtb,
-      athlete.averageSpeedStrava,
+      athlete.averageSpeedGeneral,
     ];
 
     const completed = requiredFields.every(

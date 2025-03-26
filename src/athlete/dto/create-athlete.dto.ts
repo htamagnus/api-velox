@@ -8,7 +8,7 @@ const createAthleteDto = z.object({
   height: z.number(),
   averageSpeedRoad: z.number(),
   averageSpeedMtb: z.number(),
-  averageSpeedStrava: z.number(),
+  averageSpeedGeneral: z.number(),
 });
 
 export class CreateAthleteDto extends createZodDto(createAthleteDto) {}
