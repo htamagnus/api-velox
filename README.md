@@ -11,10 +11,12 @@ Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota c
 | --- | --- |
 | **RF01** | O usuário deve preencher seus dados cadastrais: **altura, peso, idade**. |
 | **RF02** | O usuário deve preencher sua **velocidade média por modalidade** (ex: Road, MTB). |
-| **RF03** | O usuário pode optar por **importar esses dados automaticamente do Strava**, via OAuth. |
+| **RF03** | O usuário pode optar por **importar esse dado (velocidade média) automaticamente do Strava**, via OAuth. |
 | **RF03.1** | O app deve exibir um botão com o texto **"Descubra sua média geral integrando com o Strava"** durante o onboarding. |
-| **RF03.2** | Após a importação da média geral do Strava, o app deve direcionar o usuário para uma etapa onde ele possa **preencher manualmente as médias por modalidade (Road e MTB)**, com sugestão de que isso melhora a precisão. |
-| **RF04** | O app deve **bloquear a criação de rotas** caso os dados obrigatórios (médias por modalidade) não estejam preenchidos. |
+| **RF03.2** | Se a média for importada via Strava, o app deve armazenar uma flag (averageSpeedGeneralIsFromStrava = true) para indicar a origem do dado. |
+| **RF03.3** | O app deve permitir que o usuário preencha manualmente sua média geral, como alternativa à integração com o Strava. |
+| **RF03.4** | Após a importação da média geral do Strava, o app deve direcionar o usuário para uma etapa onde ele possa **preencher manualmente as médias por modalidade (Road e MTB)**, com sugestão de que isso melhora a precisão. |
+| **RF03.5** | O front pode exibir uma mensagem como "Esse dado foi importado do Strava" se a flag estiver verdadeira. |
 | **RF05** | O app deve permitir que o usuário **insira origem e destino de uma rota**. |
 | **RF06** | O app deve consumir a **Google Directions API** para obter a distância da rota. |
 | **RF07** | O app deve calcular o **tempo estimado da rota**, com base na distância e na velocidade média do usuário. |
@@ -44,6 +46,8 @@ Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota c
 | **RB02** | A velocidade média pode ser preenchida manualmente ou ser importada do Strava. |
 | **RB03** | O cálculo de calorias será baseado em fórmulas aproximadas utilizando: peso, tempo estimado, e tipo de atividade (modalidade). |
 | **RB04** | Cada modalidade (road, MTB, etc.) tem sua própria velocidade média associada e usada nos cálculos. |
-| **RB05** | Caso o usuário integre com o Strava, o campo averageSpeedStrava será preenchido automaticamente com a média geral. Ainda assim, o usuário poderá (e será incentivado a) inserir manualmente suas médias específicas por modalidade para maior precisão no planejamento:. |
+| **RB05** | O usuário pode preencher a média geral (averageSpeedGeneral) manualmente ou importar automaticamente do Strava. |
+| **RB06** | Caso a média seja importada via Strava, a flag averageSpeedGeneralIsFromStrava deve ser marcada como true. |
+| **RB07** | O app incentivará o preenchimento manual das médias específicas por modalidade (averageSpeedRoad, averageSpeedMtb) para garantir maior precisão no planejamento de rotas. |
 
 ---
