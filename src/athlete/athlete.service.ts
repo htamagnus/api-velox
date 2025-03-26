@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAthleteDto } from './dto/create-athlete.dto';
 import StravaClient from 'src/clients/strava.client';
+import GoogleMapsClient from 'src/clients/google-maps.client';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AthleteEntity } from './entities/athlete.entity';
 import { Repository } from 'typeorm';
@@ -8,7 +8,7 @@ import {
   GetPlannedRouteInputDto,
   GetPlannedRouteResponseDto,
 } from './dto/create-route.dto';
-import GoogleMapsClient from 'src/clients/google-maps.client';
+import { CreateAthleteDto } from './dto/create-athlete.dto';
 import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import {
   AthleteNotFoundError,
@@ -16,7 +16,6 @@ import {
   RideActivitiesNotFoundError,
 } from 'src/errors';
 import { calculateCalories, calculateElevationGainAndLoss } from 'src/utils';
-
 @Injectable()
 export class AthleteService {
   constructor(
