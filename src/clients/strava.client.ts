@@ -36,15 +36,6 @@ export default class StravaClient {
     return response.json(); // access_token, refresh_token, athlete, etc.
   }
 
-  async getAthlete(accessToken: string) {
-    const response = await fetch(`${this.baseUrl}/athlete`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return response.json();
-  }
-
   async getActivities(accessToken: string, page = 1, perPage = 30) {
     const response = await fetch(
       `${this.baseUrl}/athlete/activities?page=${page}&per_page=${perPage}`,
@@ -56,24 +47,5 @@ export default class StravaClient {
     );
     console.log('response', response);
     return response.json();
-  }
-
-  async refreshAccessToken(refreshToken: string) {
-    const response = await fetch('https://www.strava.com/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Erro ao renovar o token do Strava');
-    }
-
-    return response.json(); // { access_token, refresh_token, expires_at, ... }
   }
 }

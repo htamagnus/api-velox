@@ -49,60 +49,6 @@ export class AthleteService {
     return this.athleteRepository.save(athlete);
   }
 
-  private async createAthleteFromStrava(code: string): Promise<AthleteEntity> {
-    // trocar o código pelo token
-    const tokenResponse = await this.stravaClient.exchangeCodeForToken(code);
-    const { access_token, refresh_token, athlete } = tokenResponse;
-
-    // buscar atividades recentes, melhorar nome da função
-    const activities = await this.stravaClient.getActivities(access_token);
-    console.log('activities', activities);
-
-    const rideActivities = activities.filter((a) => a.type === 'Ride');
-    console.log('rideActivities', rideActivities);
-
-    // calcular a média de velocidade
-    const totalSpeed = rideActivities.reduce(
-      (sum, activity) => sum + activity.average_speed,
-      0,
-    );
-    console.log('totalSpeed', totalSpeed);
-
-    const averageSpeed = totalSpeed / rideActivities.length; // em m/s
-
-    const averageSpeedKmH = averageSpeed * 3.6; // converter para km/h
-    console.log('averageSpeedKmH', averageSpeedKmH);
-
-    // procurar se já existe atleta com o mesmo stravaId
-    let athleteEntity = await this.athleteRepository.findOne({
-      where: { stravaId: athlete.id.toString() },
-    });
-
-    if (athleteEntity) {
-      // aualiza o atleta existente
-      athleteEntity = this.athleteRepository.merge(athleteEntity, {
-        accessToken: access_token,
-        refreshToken: refresh_token,
-        averageSpeedStrava: averageSpeedKmH,
-        tokenExpiresAt: tokenResponse.expires_at,
-        isProfileComplete: true,
-      });
-    } else {
-      // cria um novo atleta
-      athleteEntity = this.athleteRepository.create({
-        name: `${athlete.firstname} ${athlete.lastname}`,
-        stravaId: athlete.id.toString(),
-        accessToken: access_token,
-        refreshToken: refresh_token,
-        averageSpeedStrava: averageSpeedKmH,
-        tokenExpiresAt: tokenResponse.expires_at,
-        isProfileComplete: true,
-      });
-    }
-
-    return this.athleteRepository.save(athleteEntity);
-  }
-
   async getStravaAverageSpeed(
     id: string,
     code: string,
