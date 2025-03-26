@@ -11,6 +11,11 @@ import {
 import GoogleMapsClient from 'src/clients/google-maps.client';
 import { calculateCalories } from 'src/utils/calculate-calories.utils';
 import { UpdateAthleteDto } from './dto/update-athlete.dto';
+import {
+  AthleteNotFoundError,
+  AverageSpeedNotSetError,
+  RideActivitiesNotFoundError,
+} from 'src/errors';
 
 @Injectable()
 export class AthleteService {
@@ -21,15 +26,16 @@ export class AthleteService {
     private readonly googleMapsClient: GoogleMapsClient,
   ) {}
 
-  async getAthleteById(id: string): Promise<AthleteEntity> {
-    const athlete = await this.athleteRepository.findOne({
-      where: { id },
-    });
-
+  private async findAthleteOrThrow(id: string): Promise<AthleteEntity> {
+    const athlete = await this.athleteRepository.findOne({ where: { id } });
     if (!athlete) {
-      throw new Error('Athlete not found');
+      throw new AthleteNotFoundError();
     }
+    return athlete;
+  }
 
+  async getAthleteById(id: string): Promise<AthleteEntity> {
+    const athlete = await this.findAthleteOrThrow(id);
     return athlete;
   }
 
@@ -45,7 +51,6 @@ export class AthleteService {
       stravaId: null,
       accessToken: '',
     });
-
     return this.athleteRepository.save(athlete);
   }
 
@@ -53,9 +58,7 @@ export class AthleteService {
     id: string,
     code: string,
   ): Promise<{ averageSpeedStrava: number }> {
-    const athlete = await this.athleteRepository.findOneOrFail({
-      where: { id },
-    });
+    const athlete = await this.findAthleteOrThrow(id);
 
     const tokenResponse = await this.stravaClient.exchangeCodeForToken(code);
     const {
@@ -68,6 +71,10 @@ export class AthleteService {
 
     const activities = await this.stravaClient.getActivities(access_token);
     const rideActivities = activities.filter((a) => a.type === 'Ride');
+
+    if (rideActivities.length === 0) {
+      throw new RideActivitiesNotFoundError();
+    }
 
     const totalSpeed = rideActivities.reduce(
       (sum, activity) => sum + activity.average_speed,
@@ -90,11 +97,7 @@ export class AthleteService {
   async getAthleteProfileCompleteness(
     id: string,
   ): Promise<{ completed: boolean }> {
-    const athlete = await this.athleteRepository.findOne({ where: { id } });
-
-    if (!athlete) {
-      throw new Error('Athlete not found');
-    }
+    const athlete = await this.findAthleteOrThrow(id);
 
     const requiredFields = [
       athlete.averageSpeedRoad,
@@ -113,10 +116,7 @@ export class AthleteService {
     athleteId: string,
     dto: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
-    const athlete = await this.athleteRepository.findOne({
-      where: { id: athleteId },
-    });
-    if (!athlete) throw new Error('Athlete not found');
+    const athlete = await this.findAthleteOrThrow(athleteId);
 
     const { origin, destination, modality } = dto;
 
@@ -130,8 +130,7 @@ export class AthleteService {
     const averageSpeed =
       modality === 'road' ? athlete.averageSpeedRoad : athlete.averageSpeedMtb;
 
-    if (!averageSpeed)
-      throw new Error('Average speed not set for this modality');
+    if (!averageSpeed) throw new AverageSpeedNotSetError(modality);
 
     const estimatedTimeHours = distanceKm / averageSpeed;
     const estimatedTimeMinutes = estimatedTimeHours * 60;
@@ -160,6 +159,6 @@ export class AthleteService {
     data: Partial<UpdateAthleteDto>,
   ): Promise<AthleteEntity> {
     await this.athleteRepository.update({ id: athleteId }, data);
-    return this.athleteRepository.findOneOrFail({ where: { id: athleteId } });
+    return this.findAthleteOrThrow(athleteId);
   }
 }
