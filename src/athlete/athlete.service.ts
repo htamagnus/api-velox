@@ -142,7 +142,7 @@ export class AthleteService {
     });
 
     const elevation =
-      await this.googleMapsClient.getElevationGainFromPolyline(polyline);
+      await this.googleMapsClient.getElevationFromPolyline(polyline);
 
     return {
       distanceKm,
