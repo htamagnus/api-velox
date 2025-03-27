@@ -218,4 +218,23 @@ export class AthleteService {
 
     await this.savedRouteRepository.save(savedRoute);
   }
+
+  async getSavedRoutesForAthlete(athleteId: string): Promise<SaveRouteDto[]> {
+    const savedRoutes = await this.savedRouteRepository.find({
+      where: { athleteId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return savedRoutes.map((route) => ({
+      origin: route.origin,
+      destination: route.destination,
+      modality: route.modality,
+      distanceKm: route.distanceKm,
+      estimatedTimeMinutes: route.estimatedTimeMinutes,
+      estimatedCalories: route.estimatedCalories,
+      elevationGain: route.elevationGain,
+      elevationLoss: route.elevationLoss,
+      polyline: route.polyline,
+    }));
+  }
 }
