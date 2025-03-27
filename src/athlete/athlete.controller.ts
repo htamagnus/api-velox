@@ -15,6 +15,9 @@ import {
 } from './dto/create-route.dto';
 import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import { AthleteEntity } from './entities/athlete.entity';
+import { RegisterAthleteDto } from './dto/register-athlete.dto';
+import { LoginAthleteDto } from './dto/login-athlete.dto';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Controller('athlete')
 export class AthleteController {
@@ -61,5 +64,15 @@ export class AthleteController {
     @Body() body: UpdateAthleteDto,
   ): Promise<AthleteEntity> {
     return this.athleteService.updateAthleteData(id, body);
+  }
+
+  @Post('/register')
+  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto) {
+    return this.athleteService.register(dto);
+  }
+
+  @Post('/login')
+  login(@Body() dto: LoginAthleteDto) {
+    return this.athleteService.login(dto);
   }
 }
