@@ -40,25 +40,15 @@ export class AthleteController {
   async completeProfile(
     @Body() payload: CreateAthleteDto,
   ): Promise<CreateAthleteDto> {
-    return this.athleteService.createAthleteProfile(payload);
+    return this.athleteService.completeProfile(payload);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
-  async getAthlete(
+  async getProfile(
     @Token() tokenPayload: TokenPayloadDto,
   ): Promise<AthleteEntity> {
-    return this.athleteService.getAthleteById(tokenPayload.athleteId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/profile/completeness')
-  async getAthleteProfileCompleteness(
-    @Token() tokenPayload: TokenPayloadDto,
-  ): Promise<{ completed: boolean }> {
-    return this.athleteService.getAthleteProfileCompleteness(
-      tokenPayload.athleteId,
-    );
+    return this.athleteService.getProfileById(tokenPayload.athleteId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -71,12 +61,20 @@ export class AthleteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/profile/completeness')
+  async getProfileCompleteness(
+    @Token() tokenPayload: TokenPayloadDto,
+  ): Promise<{ completed: boolean }> {
+    return this.athleteService.checkProfileCompleteness(tokenPayload.athleteId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/strava/average-speed')
-  async discoverAverageSpeedFromStrava(
+  async getStravaAverageSpeed(
     @Token() tokenPayload: TokenPayloadDto,
     @Query('code') code: string,
   ): Promise<{ averageSpeedGeneral: number }> {
-    return this.athleteService.getStravaAverageSpeed(
+    return this.athleteService.fetchStravaAverageSpeed(
       tokenPayload.athleteId,
       code,
     );
@@ -84,10 +82,13 @@ export class AthleteController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/routes')
-  async createRoute(
+  async planRoute(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
-    return this.athleteService.createRoute(tokenPayload.athleteId, payload);
+    return this.athleteService.planRouteForAthlete(
+      tokenPayload.athleteId,
+      payload,
+    );
   }
 }

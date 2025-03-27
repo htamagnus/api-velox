@@ -31,6 +31,47 @@ export class AthleteService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async register(data: RegisterAthleteDto) {
+    const existing = await this.athleteRepository.findOne({
+      where: { email: data.email },
+    });
+
+    if (existing) throw new EmailAlreadyExistsError(); // criar erro
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const athlete = this.athleteRepository.create({
+      email: data.email,
+      password: hashedPassword,
+    });
+
+    await this.athleteRepository.save(athlete);
+    return { message: 'Registered successfully' };
+  }
+
+  async login(dto: LoginAthleteDto) {
+    const athlete = await this.athleteRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!athlete) throw new UnauthorizedException('Credenciais inválidas');
+
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      athlete.password,
+    );
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Credenciais inválidas'); // criar erro
+
+    const { token, expiresIn } = await this.jwtService.generateAuthToken(
+      athlete.id,
+    );
+
+    return {
+      token,
+      expiresIn,
+      athleteId: athlete.id,
+    };
+  }
+
   private async findAthleteOrThrow(id: string): Promise<AthleteEntity> {
     const athlete = await this.athleteRepository.findOne({ where: { id } });
     if (!athlete) {
@@ -39,12 +80,7 @@ export class AthleteService {
     return athlete;
   }
 
-  async getAthleteById(id: string): Promise<AthleteEntity> {
-    const athlete = await this.findAthleteOrThrow(id);
-    return athlete;
-  }
-
-  async createAthleteProfile(data: CreateAthleteDto): Promise<AthleteEntity> {
+  async completeProfile(data: CreateAthleteDto): Promise<AthleteEntity> {
     const athlete = this.athleteRepository.create({
       name: data.name,
       age: data.age,
@@ -57,7 +93,36 @@ export class AthleteService {
     return this.athleteRepository.save(athlete);
   }
 
-  async getStravaAverageSpeed(
+  async getProfileById(id: string): Promise<AthleteEntity> {
+    const athlete = await this.findAthleteOrThrow(id);
+    return athlete;
+  }
+
+  async updateAthleteData(
+    athleteId: string,
+    data: Partial<UpdateAthleteDto>,
+  ): Promise<AthleteEntity> {
+    await this.athleteRepository.update({ id: athleteId }, data);
+    return this.findAthleteOrThrow(athleteId);
+  }
+
+  async checkProfileCompleteness(id: string): Promise<{ completed: boolean }> {
+    const athlete = await this.findAthleteOrThrow(id);
+
+    const requiredFields = [
+      athlete.averageSpeedRoad,
+      athlete.averageSpeedMtb,
+      athlete.averageSpeedGeneral,
+    ];
+
+    const completed = requiredFields.every(
+      (field) => field !== null && field !== undefined,
+    );
+
+    return { completed };
+  }
+
+  async fetchStravaAverageSpeed(
     id: string,
     code: string,
   ): Promise<{ averageSpeedGeneral: number }> {
@@ -91,25 +156,7 @@ export class AthleteService {
     return { averageSpeedGeneral: averageSpeedKmH };
   }
 
-  async getAthleteProfileCompleteness(
-    id: string,
-  ): Promise<{ completed: boolean }> {
-    const athlete = await this.findAthleteOrThrow(id);
-
-    const requiredFields = [
-      athlete.averageSpeedRoad,
-      athlete.averageSpeedMtb,
-      athlete.averageSpeedGeneral,
-    ];
-
-    const completed = requiredFields.every(
-      (field) => field !== null && field !== undefined,
-    );
-
-    return { completed };
-  }
-
-  async createRoute(
+  async planRouteForAthlete(
     athleteId: string,
     dto: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
@@ -149,55 +196,6 @@ export class AthleteService {
       elevationGain: gain,
       elevationLoss: loss,
       polyline,
-    };
-  }
-
-  async updateAthleteData(
-    athleteId: string,
-    data: Partial<UpdateAthleteDto>,
-  ): Promise<AthleteEntity> {
-    await this.athleteRepository.update({ id: athleteId }, data);
-    return this.findAthleteOrThrow(athleteId);
-  }
-
-  async register(data: RegisterAthleteDto) {
-    const existing = await this.athleteRepository.findOne({
-      where: { email: data.email },
-    });
-
-    if (existing) throw new EmailAlreadyExistsError(); // criar erro
-
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    const athlete = this.athleteRepository.create({
-      email: data.email,
-      password: hashedPassword,
-    });
-
-    await this.athleteRepository.save(athlete);
-    return { message: 'Registered successfully' };
-  }
-
-  async login(dto: LoginAthleteDto) {
-    const athlete = await this.athleteRepository.findOne({
-      where: { email: dto.email },
-    });
-    if (!athlete) throw new UnauthorizedException('Credenciais inválidas');
-
-    const isPasswordValid = await bcrypt.compare(
-      dto.password,
-      athlete.password,
-    );
-    if (!isPasswordValid)
-      throw new UnauthorizedException('Credenciais inválidas'); // criar erro
-
-    const { token, expiresIn } = await this.jwtService.generateAuthToken(
-      athlete.id,
-    );
-
-    return {
-      token,
-      expiresIn,
-      athleteId: athlete.id,
     };
   }
 }
