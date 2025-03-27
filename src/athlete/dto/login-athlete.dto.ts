@@ -6,4 +6,13 @@ const loginAthleteDto = z.object({
   password: z.string(),
 });
 
+const loginAthleteResponseDto = z.object({
+  token: z.string(),
+  expiresIn: z.number(),
+  athleteId: z.string(),
+});
+
 export class LoginAthleteDto extends createZodDto(loginAthleteDto) {}
+export class LoginAthleteResponseDto extends createZodDto(
+  loginAthleteResponseDto,
+) {}
