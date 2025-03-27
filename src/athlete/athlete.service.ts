@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import StravaClient from 'src/clients/strava.client';
 import GoogleMapsClient from 'src/clients/google-maps.client';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,14 +13,18 @@ import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import {
   AthleteNotFoundError,
   AverageSpeedNotSetError,
+  EmailAlreadyExistsError,
+  InvalidCredentialsError,
   RideActivitiesNotFoundError,
 } from 'src/errors';
 import { calculateCalories, calculateElevationGainAndLoss } from 'src/utils';
 import * as bcrypt from 'bcrypt';
 import { RegisterAthleteDto } from './dto/register-athlete.dto';
-import { LoginAthleteDto } from './dto/login-athlete.dto';
+import {
+  LoginAthleteDto,
+  LoginAthleteResponseDto,
+} from './dto/login-athlete.dto';
 import { JwtService } from 'src/utils/generate-jwt.utils';
-import { EmailAlreadyExistsError } from 'src/errors/email-already-exists.error';
 import { SaveRouteDto } from './dto/save-route.dto';
 import { SavedRouteEntity } from './entities/saved-routes.entity';
 @Injectable()
@@ -35,12 +39,12 @@ export class AthleteService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(data: RegisterAthleteDto) {
+  async register(data: RegisterAthleteDto): Promise<void> {
     const existing = await this.athleteRepository.findOne({
       where: { email: data.email },
     });
 
-    if (existing) throw new EmailAlreadyExistsError(); // criar erro
+    if (existing) throw new EmailAlreadyExistsError();
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const athlete = this.athleteRepository.create({
@@ -49,21 +53,19 @@ export class AthleteService {
     });
 
     await this.athleteRepository.save(athlete);
-    return { message: 'Registered successfully' };
   }
 
-  async login(dto: LoginAthleteDto) {
+  async login(dto: LoginAthleteDto): Promise<LoginAthleteResponseDto> {
     const athlete = await this.athleteRepository.findOne({
       where: { email: dto.email },
     });
-    if (!athlete) throw new UnauthorizedException('Credenciais inválidas');
+    if (!athlete) throw new InvalidCredentialsError();
 
     const isPasswordValid = await bcrypt.compare(
       dto.password,
       athlete.password,
     );
-    if (!isPasswordValid)
-      throw new UnauthorizedException('Credenciais inválidas'); // criar erro
+    if (!isPasswordValid) throw new InvalidCredentialsError();
 
     const { token, expiresIn } = await this.jwtService.generateAuthToken(
       athlete.id,
