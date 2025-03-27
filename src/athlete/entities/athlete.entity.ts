@@ -5,8 +5,14 @@ export class AthleteEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  password: string;
 
   @Column({ nullable: true })
   age: number;
@@ -29,7 +35,7 @@ export class AthleteEntity {
   @Column({ nullable: true, unique: true })
   stravaId: string;
 
-  @Column({ default: false })
+  @Column({ default: false, nullable: true })
   isProfileComplete: boolean;
 
   @Column({ nullable: true })
