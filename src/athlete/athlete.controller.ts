@@ -6,6 +6,8 @@ import {
   Query,
   Patch,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AthleteService } from './athlete.service';
 import { CreateAthleteDto } from './dto/create-athlete.dto';
@@ -20,7 +22,9 @@ import { LoginAthleteDto } from './dto/login-athlete.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
+import { SaveRouteDto } from './dto/save-route.dto';
 
+// TO DO: adicionar swagger
 @Controller('athlete')
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
@@ -91,5 +95,15 @@ export class AthleteController {
       tokenPayload.athleteId,
       payload,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/routes/save')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async savePlannedRoute(
+    @Token() tokenPayload: TokenPayloadDto,
+    @Body() dto: SaveRouteDto,
+  ): Promise<void> {
+    return this.athleteService.saveRouteForAthlete(tokenPayload.athleteId, dto);
   }
 }
