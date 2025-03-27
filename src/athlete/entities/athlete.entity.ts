@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { SavedRouteEntity } from './saved-routes.entity';
 
 @Entity('athletes')
 export class AthleteEntity {
@@ -40,4 +41,7 @@ export class AthleteEntity {
 
   @Column({ nullable: true })
   averageSpeedGeneralIsFromStrava?: boolean;
+
+  @OneToMany(() => SavedRouteEntity, (route) => route.athlete)
+  savedRoutes: SavedRouteEntity[];
 }
