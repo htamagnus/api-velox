@@ -6,6 +6,7 @@ import {
   Get,
   Query,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { AthleteService } from './athlete.service';
 import { CreateAthleteDto } from './dto/create-athlete.dto';
@@ -18,31 +19,42 @@ import { AthleteEntity } from './entities/athlete.entity';
 import { RegisterAthleteDto } from './dto/register-athlete.dto';
 import { LoginAthleteDto } from './dto/login-athlete.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
 
 @Controller('athlete')
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
 
-  @Get('/:id')
-  async getAthlete(@Param('id') id: string): Promise<AthleteEntity> {
-    return this.athleteService.getAthleteById(id);
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  async getAthlete(
+    @Token() tokenPayload: TokenPayloadDto,
+  ): Promise<AthleteEntity> {
+    return this.athleteService.getAthleteById(tokenPayload.athleteId);
   }
 
-  @Post('/create')
-  async createAthleteProfile(
+  @UseGuards(JwtAuthGuard)
+  @Post('/complete-profile')
+  async completeProfile(
     @Body() payload: CreateAthleteDto,
   ): Promise<CreateAthleteDto> {
     return this.athleteService.createAthleteProfile(payload);
   }
 
-  @Get('/:id/discover-strava-average')
+  @UseGuards(JwtAuthGuard)
+  @Get('/discover-strava-average')
   async discoverAverageSpeedFromStrava(
-    @Param('id') id: string,
+    @Token() tokenPayload: TokenPayloadDto,
     @Query('code') code: string,
   ): Promise<{ averageSpeedGeneral: number }> {
-    return this.athleteService.getStravaAverageSpeed(id, code);
+    return this.athleteService.getStravaAverageSpeed(
+      tokenPayload.athleteId,
+      code,
+    );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/completeness/:id')
   async getAthleteProfileCompleteness(
     @Param('id') id: string,
@@ -50,6 +62,7 @@ export class AthleteController {
     return this.athleteService.getAthleteProfileCompleteness(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/:id/plan-route')
   async createRoute(
     @Param('id') id: string,
@@ -58,6 +71,7 @@ export class AthleteController {
     return this.athleteService.createRoute(id, payload);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch('/:id/update')
   async updateAthlete(
     @Param('id') id: string,
