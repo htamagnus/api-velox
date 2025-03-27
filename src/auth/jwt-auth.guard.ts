@@ -4,12 +4,21 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'sua-secret-aqui';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly jwtIssuer: string;
+  private readonly jwtAudience: string;
+  private readonly jwtSecret: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.jwtIssuer = this.configService.getOrThrow('JWT_ISSUER');
+    this.jwtAudience = this.configService.getOrThrow('JWT_AUDIENCE');
+    this.jwtSecret = this.configService.getOrThrow('JWT_SECRET');
+  }
+
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
@@ -21,10 +30,10 @@ export class JwtAuthGuard implements CanActivate {
     const token = authHeader.split(' ')[1];
 
     try {
-      const decoded = jwt.verify(token, JWT_SECRET, {
+      const decoded = jwt.verify(token, this.jwtSecret, {
         algorithms: ['HS256'],
-        issuer: process.env.JWT_ISSUER,
-        audience: process.env.JWT_AUDIENCE,
+        issuer: this.jwtIssuer,
+        audience: this.jwtAudience,
       });
       request.user = decoded;
       return true;

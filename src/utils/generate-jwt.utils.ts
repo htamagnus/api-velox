@@ -23,7 +23,7 @@ export class JwtService {
 
     const signOptions: jwt.SignOptions = {
       algorithm: 'HS256',
-      expiresIn: '1h',
+      expiresIn: '3h',
       issuer: this.jwtIssuer,
       audience: this.jwtAudience,
     };
