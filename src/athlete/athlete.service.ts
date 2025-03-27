@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import StravaClient from 'src/clients/strava.client';
 import GoogleMapsClient from 'src/clients/google-maps.client';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +16,11 @@ import {
   RideActivitiesNotFoundError,
 } from 'src/errors';
 import { calculateCalories, calculateElevationGainAndLoss } from 'src/utils';
+import * as bcrypt from 'bcrypt';
+import { RegisterAthleteDto } from './dto/register-athlete.dto';
+import { LoginAthleteDto } from './dto/login-athlete.dto';
+import { JwtService } from 'src/utils/generate-jwt.utils';
+import { EmailAlreadyExistsError } from 'src/errors/email-already-exists.error';
 @Injectable()
 export class AthleteService {
   constructor(
@@ -23,6 +28,7 @@ export class AthleteService {
     private readonly athleteRepository: Repository<AthleteEntity>,
     private readonly stravaClient: StravaClient,
     private readonly googleMapsClient: GoogleMapsClient,
+    private readonly jwtService: JwtService,
   ) {}
 
   private async findAthleteOrThrow(id: string): Promise<AthleteEntity> {
@@ -152,5 +158,46 @@ export class AthleteService {
   ): Promise<AthleteEntity> {
     await this.athleteRepository.update({ id: athleteId }, data);
     return this.findAthleteOrThrow(athleteId);
+  }
+
+  async register(data: RegisterAthleteDto) {
+    const existing = await this.athleteRepository.findOne({
+      where: { email: data.email },
+    });
+
+    if (existing) throw new EmailAlreadyExistsError(); // criar erro
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const athlete = this.athleteRepository.create({
+      email: data.email,
+      password: hashedPassword,
+    });
+
+    await this.athleteRepository.save(athlete);
+    return { message: 'Registered successfully' };
+  }
+
+  async login(dto: LoginAthleteDto) {
+    const athlete = await this.athleteRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (!athlete) throw new UnauthorizedException('Credenciais inválidas');
+
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      athlete.password,
+    );
+    if (!isPasswordValid)
+      throw new UnauthorizedException('Credenciais inválidas'); // criar erro
+
+    const { token, expiresIn } = await this.jwtService.generateAuthToken(
+      athlete.id,
+    );
+
+    return {
+      token,
+      expiresIn,
+      athleteId: athlete.id,
+    };
   }
 }
