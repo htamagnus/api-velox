@@ -23,24 +23,41 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
 import { SaveRouteDto } from './dto/save-route.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-// TO DO: adicionar swagger
+@ApiTags('Athlete')
 @Controller('athlete')
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
 
   @Post('/register')
+  @ApiOperation({ summary: 'Register a new athlete' })
+  @ApiResponse({ status: 201, description: 'Athlete registered successfully' })
   register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto) {
     return this.athleteService.register(dto);
   }
 
   @Post('/login')
+  @ApiOperation({ summary: 'Login an athlete' })
+  @ApiResponse({
+    status: 200,
+    description: 'Athlete authenticated successfully',
+  })
   login(@Body() dto: LoginAthleteDto) {
     return this.athleteService.login(dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('/profile')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Complete athlete profile' })
+  @ApiResponse({ status: 201, description: 'Profile completed successfully' })
   async completeProfile(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: CreateAthleteDto,
@@ -49,6 +66,13 @@ export class AthleteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get athlete profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the athlete profile',
+    type: AthleteEntity,
+  })
   @Get('/profile')
   async getProfile(
     @Token() tokenPayload: TokenPayloadDto,
@@ -57,6 +81,13 @@ export class AthleteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update athlete profile data' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile updated successfully',
+    type: AthleteEntity,
+  })
   @Patch('/profile/update')
   async updateAthlete(
     @Token() tokenPayload: TokenPayloadDto,
@@ -67,6 +98,12 @@ export class AthleteController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/profile/completeness')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Check if profile is complete' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns profile completeness status',
+  })
   async getProfileCompleteness(
     @Token() tokenPayload: TokenPayloadDto,
   ): Promise<{ completed: boolean }> {
@@ -75,6 +112,17 @@ export class AthleteController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/strava/average-speed')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get average speed from Strava' })
+  @ApiQuery({
+    name: 'code',
+    required: true,
+    description: 'Strava authorization code',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns average speed from Strava',
+  })
   async getStravaAverageSpeed(
     @Token() tokenPayload: TokenPayloadDto,
     @Query('code') code: string,
@@ -87,6 +135,13 @@ export class AthleteController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/routes')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Plan a new cycling route' })
+  @ApiResponse({
+    status: 201,
+    description: 'Returns the planned route details',
+    type: GetPlannedRouteResponseDto,
+  })
   async planRoute(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: GetPlannedRouteInputDto,
@@ -100,6 +155,9 @@ export class AthleteController {
   @UseGuards(JwtAuthGuard)
   @Post('/routes/save')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Save a planned route' })
+  @ApiResponse({ status: 204, description: 'Route saved successfully' })
   async savePlannedRoute(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() dto: SaveRouteDto,
@@ -109,6 +167,14 @@ export class AthleteController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/routes/saved')
+  @Get('/routes/saved')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List all saved routes' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all saved routes for the athlete',
+    type: [SaveRouteDto],
+  })
   async getSavedRoutes(
     @Token() tokenPayload: TokenPayloadDto,
   ): Promise<SaveRouteDto[]> {
