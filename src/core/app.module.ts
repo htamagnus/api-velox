@@ -4,6 +4,7 @@ import { AthleteModule } from '../athlete/athlete.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AthleteEntity } from 'src/athlete/entities/athlete.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SavedRouteEntity } from 'src/athlete/entities/saved-routes.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.getOrThrow('DB_USER'),
         password: configService.getOrThrow('DB_PASSWORD'),
         database: configService.getOrThrow('DB_NAME'),
-        entities: [AthleteEntity],
+        entities: [AthleteEntity, SavedRouteEntity],
         synchronize: true,
       }),
       inject: [ConfigService],
