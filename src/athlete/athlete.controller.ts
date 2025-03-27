@@ -18,7 +18,10 @@ import {
 import { UpdateAthleteDto } from './dto/update-athlete.dto';
 import { AthleteEntity } from './entities/athlete.entity';
 import { RegisterAthleteDto } from './dto/register-athlete.dto';
-import { LoginAthleteDto } from './dto/login-athlete.dto';
+import {
+  LoginAthleteDto,
+  LoginAthleteResponseDto,
+} from './dto/login-athlete.dto';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
@@ -39,7 +42,9 @@ export class AthleteController {
   @Post('/register')
   @ApiOperation({ summary: 'Register a new athlete' })
   @ApiResponse({ status: 201, description: 'Athlete registered successfully' })
-  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto) {
+  register(
+    @Body(new ZodValidationPipe()) dto: RegisterAthleteDto,
+  ): Promise<void> {
     return this.athleteService.register(dto);
   }
 
@@ -49,7 +54,8 @@ export class AthleteController {
     status: 200,
     description: 'Athlete authenticated successfully',
   })
-  login(@Body() dto: LoginAthleteDto) {
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  login(@Body() dto: LoginAthleteDto): Promise<LoginAthleteResponseDto> {
     return this.athleteService.login(dto);
   }
 
