@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Param,
   Get,
   Query,
   Patch,
@@ -26,16 +25,18 @@ import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/me')
-  async getAthlete(
-    @Token() tokenPayload: TokenPayloadDto,
-  ): Promise<AthleteEntity> {
-    return this.athleteService.getAthleteById(tokenPayload.athleteId);
+  @Post('/register')
+  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto) {
+    return this.athleteService.register(dto);
+  }
+
+  @Post('/login')
+  login(@Body() dto: LoginAthleteDto) {
+    return this.athleteService.login(dto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/complete-profile')
+  @Post('/profile')
   async completeProfile(
     @Body() payload: CreateAthleteDto,
   ): Promise<CreateAthleteDto> {
@@ -43,7 +44,34 @@ export class AthleteController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/discover-strava-average')
+  @Get('/profile')
+  async getAthlete(
+    @Token() tokenPayload: TokenPayloadDto,
+  ): Promise<AthleteEntity> {
+    return this.athleteService.getAthleteById(tokenPayload.athleteId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile/completeness')
+  async getAthleteProfileCompleteness(
+    @Token() tokenPayload: TokenPayloadDto,
+  ): Promise<{ completed: boolean }> {
+    return this.athleteService.getAthleteProfileCompleteness(
+      tokenPayload.athleteId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/profile/update')
+  async updateAthlete(
+    @Token() tokenPayload: TokenPayloadDto,
+    @Body() body: UpdateAthleteDto,
+  ): Promise<AthleteEntity> {
+    return this.athleteService.updateAthleteData(tokenPayload.athleteId, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/strava/average-speed')
   async discoverAverageSpeedFromStrava(
     @Token() tokenPayload: TokenPayloadDto,
     @Query('code') code: string,
@@ -55,38 +83,11 @@ export class AthleteController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/completeness/:id')
-  async getAthleteProfileCompleteness(
-    @Param('id') id: string,
-  ): Promise<{ completed: boolean }> {
-    return this.athleteService.getAthleteProfileCompleteness(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/:id/plan-route')
+  @Post('/routes')
   async createRoute(
-    @Param('id') id: string,
+    @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
-    return this.athleteService.createRoute(id, payload);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch('/:id/update')
-  async updateAthlete(
-    @Param('id') id: string,
-    @Body() body: UpdateAthleteDto,
-  ): Promise<AthleteEntity> {
-    return this.athleteService.updateAthleteData(id, body);
-  }
-
-  @Post('/register')
-  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto) {
-    return this.athleteService.register(dto);
-  }
-
-  @Post('/login')
-  login(@Body() dto: LoginAthleteDto) {
-    return this.athleteService.login(dto);
+    return this.athleteService.createRoute(tokenPayload.athleteId, payload);
   }
 }
