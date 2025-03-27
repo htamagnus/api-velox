@@ -106,4 +106,12 @@ export class AthleteController {
   ): Promise<void> {
     return this.athleteService.saveRouteForAthlete(tokenPayload.athleteId, dto);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/routes/saved')
+  async getSavedRoutes(
+    @Token() tokenPayload: TokenPayloadDto,
+  ): Promise<SaveRouteDto[]> {
+    return this.athleteService.getSavedRoutesForAthlete(tokenPayload.athleteId);
+  }
 }
