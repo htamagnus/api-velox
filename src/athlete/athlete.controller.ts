@@ -38,9 +38,10 @@ export class AthleteController {
   @UseGuards(JwtAuthGuard)
   @Post('/profile')
   async completeProfile(
+    @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: CreateAthleteDto,
   ): Promise<CreateAthleteDto> {
-    return this.athleteService.completeProfile(payload);
+    return this.athleteService.completeProfile(tokenPayload.athleteId, payload);
   }
 
   @UseGuards(JwtAuthGuard)

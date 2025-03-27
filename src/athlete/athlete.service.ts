@@ -80,16 +80,20 @@ export class AthleteService {
     return athlete;
   }
 
-  async completeProfile(data: CreateAthleteDto): Promise<AthleteEntity> {
-    const athlete = this.athleteRepository.create({
-      name: data.name,
-      age: data.age,
-      weight: data.weight,
-      height: data.height,
-      averageSpeedRoad: data.averageSpeedRoad,
-      averageSpeedMtb: data.averageSpeedMtb,
-      averageSpeedGeneral: data.averageSpeedGeneral,
-    });
+  async completeProfile(
+    athleteId: string,
+    data: CreateAthleteDto,
+  ): Promise<AthleteEntity> {
+    const athlete = await this.findAthleteOrThrow(athleteId);
+
+    athlete.name = data.name;
+    athlete.age = data.age;
+    athlete.weight = data.weight;
+    athlete.height = data.height;
+    athlete.averageSpeedRoad = data.averageSpeedRoad;
+    athlete.averageSpeedMtb = data.averageSpeedMtb;
+    athlete.averageSpeedGeneral = data.averageSpeedGeneral;
+
     return this.athleteRepository.save(athlete);
   }
 
