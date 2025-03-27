@@ -21,11 +21,15 @@ import { RegisterAthleteDto } from './dto/register-athlete.dto';
 import { LoginAthleteDto } from './dto/login-athlete.dto';
 import { JwtService } from 'src/utils/generate-jwt.utils';
 import { EmailAlreadyExistsError } from 'src/errors/email-already-exists.error';
+import { SaveRouteDto } from './dto/save-route.dto';
+import { SavedRouteEntity } from './entities/saved-routes.entity';
 @Injectable()
 export class AthleteService {
   constructor(
     @InjectRepository(AthleteEntity)
     private readonly athleteRepository: Repository<AthleteEntity>,
+    @InjectRepository(SavedRouteEntity)
+    private readonly savedRouteRepository: Repository<SavedRouteEntity>,
     private readonly stravaClient: StravaClient,
     private readonly googleMapsClient: GoogleMapsClient,
     private readonly jwtService: JwtService,
@@ -201,5 +205,17 @@ export class AthleteService {
       elevationLoss: loss,
       polyline,
     };
+  }
+
+  async saveRouteForAthlete(
+    athleteId: string,
+    dto: SaveRouteDto,
+  ): Promise<void> {
+    const savedRoute = this.savedRouteRepository.create({
+      ...dto,
+      athleteId,
+    });
+
+    await this.savedRouteRepository.save(savedRoute);
   }
 }
