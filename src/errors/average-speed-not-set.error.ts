@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { BaseAppError } from './base-error';
 
-export class AverageSpeedNotSetError extends HttpException {
+export class AverageSpeedNotSetError extends BaseAppError {
   constructor(modality: string) {
-    super(
-      `Average speed not set for modality: ${modality}`,
-      HttpStatus.BAD_REQUEST,
-    );
+    super({
+      message: `Average speed not set for modality: ${modality}`,
+      status: HttpStatus.BAD_REQUEST,
+      code: 'AVERAGE_SPEED_NOT_SET',
+    });
   }
 }

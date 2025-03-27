@@ -1,7 +1,12 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { BaseAppError } from './base-error';
 
-export class GoogleRoutesNotFoundError extends HttpException {
+export class GoogleRoutesNotFoundError extends BaseAppError {
   constructor() {
-    super('No route found on Google Maps', HttpStatus.NOT_FOUND);
+    super({
+      message: 'No route found on Google Maps.',
+      status: HttpStatus.NOT_FOUND,
+      code: 'GOOGLE_ROUTES_NOT_FOUND',
+    });
   }
 }

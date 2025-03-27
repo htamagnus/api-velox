@@ -1,10 +1,12 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { BaseAppError } from './base-error';
 
-export class GoogleElevationNotFoundError extends HttpException {
+export class GoogleElevationNotFoundError extends BaseAppError {
   constructor() {
-    super(
-      'Error fetching elevation data from Google Maps',
-      HttpStatus.BAD_GATEWAY,
-    );
+    super({
+      message: 'Error fetching elevation data from Google Maps.',
+      status: HttpStatus.BAD_GATEWAY,
+      code: 'GOOGLE_ELEVATION_NOT_FOUND',
+    });
   }
 }

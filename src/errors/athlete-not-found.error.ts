@@ -1,7 +1,12 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { BaseAppError } from './base-error';
 
-export class AthleteNotFoundError extends HttpException {
+export class AthleteNotFoundError extends BaseAppError {
   constructor() {
-    super('Athlete not found', HttpStatus.NOT_FOUND);
+    super({
+      message: 'Athlete not found',
+      status: HttpStatus.NOT_FOUND,
+      code: 'ATHLETE_NOT_FOUND',
+    });
   }
 }
