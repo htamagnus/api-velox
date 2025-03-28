@@ -1,5 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
-import { BaseAppError } from './base-error';
+import { HttpStatus } from '@nestjs/common'
+
+import { BaseAppError } from './base-error'
 
 export class InvalidCredentialsError extends BaseAppError {
   constructor() {
@@ -7,6 +8,6 @@ export class InvalidCredentialsError extends BaseAppError {
       message: 'Invalid Credentials. Please provide valid credentials.',
       status: HttpStatus.BAD_REQUEST,
       code: 'INVALID_CREDENTIALS',
-    });
+    })
   }
 }

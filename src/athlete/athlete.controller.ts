@@ -1,38 +1,21 @@
+import { AthleteService } from '@athlete/athlete.service'
 import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Query,
-  Patch,
-  UseGuards,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { AthleteService } from './athlete.service';
-import { CreateAthleteDto } from './dto/create-athlete.dto';
-import {
+  CreateAthleteDto,
   GetPlannedRouteInputDto,
   GetPlannedRouteResponseDto,
-} from './dto/create-route.dto';
-import { UpdateAthleteDto } from './dto/update-athlete.dto';
-import { AthleteEntity } from './entities/athlete.entity';
-import { RegisterAthleteDto } from './dto/register-athlete.dto';
-import {
   LoginAthleteDto,
   LoginAthleteResponseDto,
-} from './dto/login-athlete.dto';
-import { ZodValidationPipe } from 'nestjs-zod';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Token, TokenPayloadDto } from 'src/decorators/token-payload.decorator';
-import { SaveRouteDto } from './dto/save-route.dto';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+  RegisterAthleteDto,
+  SaveRouteDto,
+  UpdateAthleteDto,
+} from '@athlete/dto'
+import { AthleteEntity } from '@athlete/entities'
+import { Controller, Post, Body, Get, Query, Patch, UseGuards, HttpCode, HttpStatus } from '@nestjs/common'
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ZodValidationPipe } from 'nestjs-zod'
+
+import { JwtAuthGuard } from '@auth'
+import { Token, TokenPayloadDto } from '@decorators'
 
 @ApiTags('Athlete')
 @Controller('athlete')
@@ -42,10 +25,8 @@ export class AthleteController {
   @Post('/register')
   @ApiOperation({ summary: 'Register a new athlete' })
   @ApiResponse({ status: 201, description: 'Athlete registered successfully' })
-  register(
-    @Body(new ZodValidationPipe()) dto: RegisterAthleteDto,
-  ): Promise<void> {
-    return this.athleteService.register(dto);
+  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto): Promise<void> {
+    return this.athleteService.register(dto)
   }
 
   @Post('/login')
@@ -56,7 +37,7 @@ export class AthleteController {
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   login(@Body() dto: LoginAthleteDto): Promise<LoginAthleteResponseDto> {
-    return this.athleteService.login(dto);
+    return this.athleteService.login(dto)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -67,8 +48,8 @@ export class AthleteController {
   async completeProfile(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: CreateAthleteDto,
-  ): Promise<CreateAthleteDto> {
-    return this.athleteService.completeProfile(tokenPayload.athleteId, payload);
+  ): Promise<AthleteEntity> {
+    return this.athleteService.completeProfile(tokenPayload.athleteId, payload)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -80,10 +61,8 @@ export class AthleteController {
     type: AthleteEntity,
   })
   @Get('/profile')
-  async getProfile(
-    @Token() tokenPayload: TokenPayloadDto,
-  ): Promise<AthleteEntity> {
-    return this.athleteService.getProfileById(tokenPayload.athleteId);
+  async getProfile(@Token() tokenPayload: TokenPayloadDto): Promise<AthleteEntity> {
+    return this.athleteService.getProfileById(tokenPayload.athleteId)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -92,14 +71,14 @@ export class AthleteController {
   @ApiResponse({
     status: 200,
     description: 'Profile updated successfully',
-    type: AthleteEntity,
+    type: UpdateAthleteDto,
   })
   @Patch('/profile/update')
   async updateAthlete(
     @Token() tokenPayload: TokenPayloadDto,
     @Body() body: UpdateAthleteDto,
-  ): Promise<AthleteEntity> {
-    return this.athleteService.updateAthleteData(tokenPayload.athleteId, body);
+  ): Promise<UpdateAthleteDto> {
+    return this.athleteService.updateAthleteData(tokenPayload.athleteId, body)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -110,10 +89,8 @@ export class AthleteController {
     status: 200,
     description: 'Returns profile completeness status',
   })
-  async getProfileCompleteness(
-    @Token() tokenPayload: TokenPayloadDto,
-  ): Promise<{ completed: boolean }> {
-    return this.athleteService.checkProfileCompleteness(tokenPayload.athleteId);
+  async getProfileCompleteness(@Token() tokenPayload: TokenPayloadDto): Promise<{ completed: boolean }> {
+    return this.athleteService.checkProfileCompleteness(tokenPayload.athleteId)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -133,10 +110,7 @@ export class AthleteController {
     @Token() tokenPayload: TokenPayloadDto,
     @Query('code') code: string,
   ): Promise<{ averageSpeedGeneral: number }> {
-    return this.athleteService.fetchStravaAverageSpeed(
-      tokenPayload.athleteId,
-      code,
-    );
+    return this.athleteService.fetchStravaAverageSpeed(tokenPayload.athleteId, code)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -152,10 +126,7 @@ export class AthleteController {
     @Token() tokenPayload: TokenPayloadDto,
     @Body() payload: GetPlannedRouteInputDto,
   ): Promise<GetPlannedRouteResponseDto> {
-    return this.athleteService.planRouteForAthlete(
-      tokenPayload.athleteId,
-      payload,
-    );
+    return this.athleteService.planRouteForAthlete(tokenPayload.athleteId, payload)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -164,11 +135,8 @@ export class AthleteController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Save a planned route' })
   @ApiResponse({ status: 204, description: 'Route saved successfully' })
-  async savePlannedRoute(
-    @Token() tokenPayload: TokenPayloadDto,
-    @Body() dto: SaveRouteDto,
-  ): Promise<void> {
-    return this.athleteService.saveRouteForAthlete(tokenPayload.athleteId, dto);
+  async savePlannedRoute(@Token() tokenPayload: TokenPayloadDto, @Body() dto: SaveRouteDto): Promise<void> {
+    return this.athleteService.saveRouteForAthlete(tokenPayload.athleteId, dto)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -181,9 +149,7 @@ export class AthleteController {
     description: 'Returns all saved routes for the athlete',
     type: [SaveRouteDto],
   })
-  async getSavedRoutes(
-    @Token() tokenPayload: TokenPayloadDto,
-  ): Promise<SaveRouteDto[]> {
-    return this.athleteService.getSavedRoutesForAthlete(tokenPayload.athleteId);
+  async getSavedRoutes(@Token() tokenPayload: TokenPayloadDto): Promise<SaveRouteDto[]> {
+    return this.athleteService.getSavedRoutesForAthlete(tokenPayload.athleteId)
   }
 }

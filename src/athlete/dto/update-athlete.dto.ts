@@ -1,5 +1,5 @@
-import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
 
 const updateAthleteDto = z.object({
   name: z.string().optional(),
@@ -8,7 +8,7 @@ const updateAthleteDto = z.object({
   height: z.number().optional(),
   averageSpeedRoad: z.number().optional(),
   averageSpeedMtb: z.number().optional(),
-  averageSpeedStrava: z.number().optional(),
-});
+  averageSpeedGeneral: z.number().optional(),
+})
 
 export class UpdateAthleteDto extends createZodDto(updateAthleteDto) {}

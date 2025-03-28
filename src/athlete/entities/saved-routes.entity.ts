@@ -1,52 +1,46 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { AthleteEntity } from './athlete.entity';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+
+import { AthleteEntity } from './athlete.entity'
 
 @Entity('saved_routes')
 export class SavedRouteEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string
 
-  @ManyToOne(() => AthleteEntity, (athlete) => athlete.savedRoutes)
+  @ManyToOne(() => AthleteEntity, athlete => athlete.savedRoutes)
   @JoinColumn({ name: 'athlete_id' })
-  athlete: AthleteEntity;
+  athlete!: AthleteEntity
 
   @Column({ name: 'athlete_id' })
-  athleteId: string;
+  athleteId!: string
 
   @Column('varchar')
-  origin: string;
+  origin!: string
 
   @Column('varchar')
-  destination: string;
+  destination!: string
 
   @Column('varchar')
-  modality: 'road' | 'mtb';
+  modality!: 'road' | 'mtb'
 
   @Column('float')
-  distanceKm: number;
+  distanceKm!: number
 
   @Column('int')
-  estimatedTimeMinutes: number;
+  estimatedTimeMinutes!: number
 
   @Column('int')
-  estimatedCalories: number;
+  estimatedCalories!: number
 
   @Column('int')
-  elevationGain: number;
+  elevationGain?: number
 
   @Column('int')
-  elevationLoss: number;
+  elevationLoss?: number
 
   @Column('text')
-  polyline: string;
+  polyline!: string
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date
 }

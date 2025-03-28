@@ -1,10 +1,9 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AthleteModule } from '../athlete/athlete.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AthleteEntity } from 'src/athlete/entities/athlete.entity';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SavedRouteEntity } from 'src/athlete/entities/saved-routes.entity';
+import { AthleteModule } from '@athlete/athlete.module'
+import { AthleteEntity, SavedRouteEntity } from '@athlete/entities'
+import { AppController } from '@core/app.controller'
+import { Module } from '@nestjs/common'
+import { ConfigModule, ConfigService } from '@nestjs/config'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
 @Module({
   imports: [

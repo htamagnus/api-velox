@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { z } from 'zod';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { z } from 'zod'
 
 const stravaActivitySchema = z.array(
   z.object({
@@ -11,7 +11,7 @@ const stravaActivitySchema = z.array(
     distance: z.number(),
     moving_time: z.number(),
   }),
-);
+)
 
 const stravaTokenSchema = z.object({
   access_token: z.string(),
@@ -23,23 +23,21 @@ const stravaTokenSchema = z.object({
     firstname: z.string(),
     lastname: z.string(),
   }),
-});
+})
 
-export type StravaActivity = z.infer<typeof stravaActivitySchema>[0];
-export type StravaToken = z.infer<typeof stravaTokenSchema>;
+export type StravaActivity = z.infer<typeof stravaActivitySchema>[0]
+export type StravaToken = z.infer<typeof stravaTokenSchema>
 @Injectable()
 export default class StravaClient {
   constructor(protected readonly configService: ConfigService) {
-    this.stravaClientId = this.configService.getOrThrow('STRAVA_CLIENT_ID');
-    this.stravaClientSecret = this.configService.getOrThrow(
-      'STRAVA_CLIENT_SECRET',
-    );
-    this.stravaBaseUrl = this.configService.getOrThrow('STRAVA_API_URL');
+    this.stravaClientId = this.configService.getOrThrow('STRAVA_CLIENT_ID')
+    this.stravaClientSecret = this.configService.getOrThrow('STRAVA_CLIENT_SECRET')
+    this.stravaBaseUrl = this.configService.getOrThrow('STRAVA_API_URL')
   }
 
-  protected stravaClientId: string;
-  protected stravaClientSecret: string;
-  protected stravaBaseUrl: string;
+  protected stravaClientId: string
+  protected stravaClientSecret: string
+  protected stravaBaseUrl: string
 
   async exchangeCodeForToken(code: string) {
     try {
@@ -52,23 +50,19 @@ export default class StravaClient {
           code,
           grant_type: 'authorization_code',
         }),
-      });
+      })
 
-      const data = await response.json();
-      return stravaTokenSchema.parse(data);
+      const data = await response.json()
+      return stravaTokenSchema.parse(data)
     } catch (error) {
       throw new HttpException(
         `Error fetching: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,
-      );
+      )
     }
   }
 
-  async getActivities(
-    accessToken: string,
-    page = 1,
-    perPage = 30,
-  ): Promise<StravaActivity[]> {
+  async getActivities(accessToken: string, page = 1, perPage = 30): Promise<StravaActivity[]> {
     try {
       const response = await fetch(
         `${this.stravaBaseUrl}/athlete/activities?page=${page}&per_page=${perPage}`,
@@ -77,14 +71,14 @@ export default class StravaClient {
             Authorization: `Bearer ${accessToken}`,
           },
         },
-      );
-      const data = await response.json();
-      return stravaActivitySchema.parse(data);
+      )
+      const data = await response.json()
+      return stravaActivitySchema.parse(data)
     } catch (error) {
       throw new HttpException(
         `Error fetching activities: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,
-      );
+      )
     }
   }
 }

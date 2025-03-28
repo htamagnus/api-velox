@@ -1,5 +1,5 @@
-import { createZodDto } from 'nestjs-zod';
-import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod'
+import { z } from 'zod'
 
 const saveRouteSchema = z.object({
   origin: z.string(),
@@ -11,6 +11,6 @@ const saveRouteSchema = z.object({
   elevationGain: z.number(),
   elevationLoss: z.number(),
   polyline: z.string(),
-});
+})
 
 export class SaveRouteDto extends createZodDto(saveRouteSchema) {}

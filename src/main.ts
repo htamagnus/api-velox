@@ -1,20 +1,24 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './core/app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from '@core/app.module'
+import { ConfigService } from '@nestjs/config'
+import { NestFactory } from '@nestjs/core'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
+  const configService = app.get(ConfigService)
 
-  const config = new DocumentBuilder()
+  const port = configService.getOrThrow<number>('PORT')
+
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('Velox API')
     .setDescription('API para planejamento e salvamento de rotas de ciclismo')
     .setVersion('1.0')
     .addBearerAuth()
-    .build();
+    .build()
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  const document = SwaggerModule.createDocument(app, swaggerConfig)
+  SwaggerModule.setup('docs', app, document)
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port)
 }
-bootstrap();
+bootstrap()

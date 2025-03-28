@@ -1,47 +1,47 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { SavedRouteEntity } from './saved-routes.entity';
+import { SavedRouteEntity } from '@athlete/entities/saved-routes.entity'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('athletes')
 export class AthleteEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string
 
   @Column({ nullable: true })
-  name: string;
+  name?: string
 
   @Column({ unique: true, nullable: true })
-  email: string;
+  email?: string
 
   @Column({ nullable: true })
-  password: string;
+  password!: string
 
   @Column({ nullable: true })
-  age: number;
+  age?: number
 
   @Column({ type: 'float', nullable: true })
-  weight: number;
+  weight!: number
 
   @Column({ type: 'float', nullable: true })
-  height: number;
+  height?: number
 
   @Column({ type: 'float', nullable: true })
-  averageSpeedRoad?: number;
+  averageSpeedRoad?: number
 
   @Column({ type: 'float', nullable: true })
-  averageSpeedMtb?: number;
+  averageSpeedMtb?: number
 
   @Column({ type: 'float', nullable: true })
-  averageSpeedGeneral?: number;
+  averageSpeedGeneral?: number
 
   @Column({ nullable: true, unique: true })
-  stravaId: string;
+  stravaId?: string
 
   @Column({ default: false, nullable: true })
-  isProfileComplete: boolean;
+  isProfileComplete?: boolean
 
   @Column({ nullable: true })
-  averageSpeedGeneralIsFromStrava?: boolean;
+  averageSpeedGeneralIsFromStrava?: boolean
 
-  @OneToMany(() => SavedRouteEntity, (route) => route.athlete)
-  savedRoutes: SavedRouteEntity[];
+  @OneToMany(() => SavedRouteEntity, route => route.athlete)
+  savedRoutes?: SavedRouteEntity[]
 }

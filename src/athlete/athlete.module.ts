@@ -1,12 +1,11 @@
-import { Module } from '@nestjs/common';
-import { AthleteService } from './athlete.service';
-import { AthleteController } from './athlete.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AthleteEntity } from './entities/athlete.entity';
-import StravaClient from 'src/clients/strava.client';
-import GoogleMapsClient from 'src/clients/google-maps.client';
-import { JwtService } from 'src/utils/generate-jwt.utils';
-import { SavedRouteEntity } from './entities/saved-routes.entity';
+import { AthleteController } from '@athlete/athlete.controller'
+import { AthleteService } from '@athlete/athlete.service'
+import { AthleteEntity, SavedRouteEntity } from '@athlete/entities'
+import { Module } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
+
+import { GoogleMapsClient, StravaClient } from '@clients'
+import { JwtService } from '@services'
 
 @Module({
   imports: [TypeOrmModule.forFeature([AthleteEntity, SavedRouteEntity])],

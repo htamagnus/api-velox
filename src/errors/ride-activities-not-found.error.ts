@@ -1,5 +1,6 @@
-import { HttpStatus } from '@nestjs/common';
-import { BaseAppError } from './base-error';
+import { HttpStatus } from '@nestjs/common'
+
+import { BaseAppError } from './base-error'
 
 export class RideActivitiesNotFoundError extends BaseAppError {
   constructor() {
@@ -7,6 +8,6 @@ export class RideActivitiesNotFoundError extends BaseAppError {
       message: 'Ride activities not found',
       status: HttpStatus.NOT_FOUND,
       code: 'RIDE_ACTIVITIES_NOT_FOUND',
-    });
+    })
   }
 }
