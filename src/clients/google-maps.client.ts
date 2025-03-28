@@ -36,7 +36,7 @@ const googleElevationSchema = z.object({
 type GoogleRoute = z.infer<typeof googleRoutesSchema>
 
 @Injectable()
-export default class GoogleMapsClient {
+export class GoogleMapsClient {
   constructor(protected readonly configService: ConfigService) {
     this.googleMapsApiKey = this.configService.getOrThrow('GOOGLE_MAPS_API_KEY')
     this.googleMapsApiUrl = this.configService.getOrThrow('GOOGLE_MAPS_API_URL')

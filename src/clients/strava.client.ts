@@ -28,7 +28,7 @@ const stravaTokenSchema = z.object({
 export type StravaActivity = z.infer<typeof stravaActivitySchema>[0]
 export type StravaToken = z.infer<typeof stravaTokenSchema>
 @Injectable()
-export default class StravaClient {
+export class StravaClient {
   constructor(protected readonly configService: ConfigService) {
     this.stravaClientId = this.configService.getOrThrow('STRAVA_CLIENT_ID')
     this.stravaClientSecret = this.configService.getOrThrow('STRAVA_CLIENT_SECRET')
