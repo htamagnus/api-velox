@@ -2,22 +2,29 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-    "@clients": ["src/clients/index.ts"],
-    "@clients/*": ["src/clients/*"],
-    "@services": ["src/services/index.ts"],
-    "@services/*": ["src/services/*"],
-    "@modules/*": ["src/modules/*"],
-    "@utils": ["src/utils/index.ts"],
-    "@utils/*": ["src/utils/*"],
-    "@auth": ["src/auth/index.ts"],
-    "@auth/*": ["src/auth/*"],
-    "@errors": ["src/errors/index.ts"],
-    "@errors/*": ["src/errors/*"],
-    "@decorators": ["src/decorators/index.ts"],
-    "@decorators/*": ["src/decorators/*"],
-    "@athlete/*": ["src/athlete/*"],
-    "@common/*": ["src/common/*"],
-    "@core/*": ["src/core/*"]
+      "@clients": ["src/clients"],
+      "@clients/*": ["src/clients/*"],
+      
+      "@services": ["src/services"],
+      "@services/*": ["src/services/*"],
+      
+      "@modules/*": ["src/modules/*"],
+      
+      "@utils": ["src/utils"],
+      "@utils/*": ["src/utils/*"],
+      
+      "@auth": ["src/auth"],
+      "@auth/*": ["src/auth/*"],
+      
+      "@errors": ["src/errors"],
+      "@errors/*": ["src/errors/*"],
+
+      "@decorators": ["src/decorators"],
+      "@decorators/*": ["src/decorators/*"],
+      
+      "@athlete/*": ["src/athlete/*"],
+      "@common/*": ["src/common/*"],
+      "@core/*": ["src/core/*"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
