@@ -2,9 +2,11 @@ import { AppModule } from '@core/app.module'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { LoggerInterceptor } from 'src/interceptors/logger.interceptor'
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+  app.useGlobalInterceptors(new LoggerInterceptor())
   const configService = app.get(ConfigService)
 
   const port = configService.getOrThrow<number>('PORT')
