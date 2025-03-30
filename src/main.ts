@@ -6,6 +6,11 @@ import { LoggerInterceptor } from 'src/interceptors/logger.interceptor'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  })
   app.useGlobalInterceptors(new LoggerInterceptor())
   const configService = app.get(ConfigService)
 
