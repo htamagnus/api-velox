@@ -37,11 +37,10 @@ export class AthleteService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(data: RegisterAthleteDto): Promise<void> {
+  private async create(data: RegisterAthleteDto): Promise<AthleteEntity> {
     const existing = await this.athleteRepository.findOne({
       where: { email: data.email },
     })
-
     if (existing) throw new EmailAlreadyExistsError()
 
     const hashedPassword = await bcrypt.hash(data.password, 10)
@@ -51,18 +50,28 @@ export class AthleteService {
       password: hashedPassword,
     })
 
-    await this.athleteRepository.save(athlete)
+    const savedAthlete = await this.athleteRepository.save(athlete)
+    return savedAthlete
+  }
+
+  async registerAndLogin(dto: RegisterAthleteDto): Promise<LoginAthleteResponseDto> {
+    const created = await this.create(dto)
+    const { token, expiresIn } = await this.jwtService.generateAuthToken(created.id)
+
+    return {
+      token,
+      expiresIn,
+      athleteId: created.id,
+    }
   }
 
   async login(dto: LoginAthleteDto): Promise<LoginAthleteResponseDto> {
     const athlete = await this.athleteRepository.findOne({
       where: { email: dto.email },
     })
-
-    if (!athlete) throw new InvalidCredentialsError()
+    if (!athlete) throw new AthleteNotFoundError()
 
     const isPasswordValid = await bcrypt.compare(dto.password, athlete.password)
-
     if (!isPasswordValid) throw new InvalidCredentialsError()
 
     const { token, expiresIn } = await this.jwtService.generateAuthToken(athlete.id)

@@ -8,6 +8,7 @@ import {
   RegisterAthleteDto,
   SaveRouteDto,
   UpdateAthleteDto,
+  RegisterAndLoginAthleteDto,
 } from '@athlete/dto'
 import { AthleteEntity } from '@athlete/entities'
 import { Controller, Post, Body, Get, Query, Patch, UseGuards, HttpCode, HttpStatus } from '@nestjs/common'
@@ -24,9 +25,9 @@ export class AthleteController {
 
   @Post('/register')
   @ApiOperation({ summary: 'Register a new athlete' })
-  @ApiResponse({ status: 201, description: 'Athlete registered successfully' })
-  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto): Promise<void> {
-    return this.athleteService.register(dto)
+  @ApiResponse({ status: 201, description: 'Athlete registered and logged in successfully' })
+  register(@Body(new ZodValidationPipe()) dto: RegisterAthleteDto): Promise<RegisterAndLoginAthleteDto> {
+    return this.athleteService.registerAndLogin(dto)
   }
 
   @Post('/login')
