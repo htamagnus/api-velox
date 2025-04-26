@@ -1,7 +1,129 @@
-## ✅ Velox v1 – Requisitos do App de Rotas para Ciclistas
+<h1 align="center" style="font-weight: bold;"> 🚴‍♂️ VELOX API — Backend para Planejamento de Rotas de Ciclismo</h1>
+
+<div align="center">
+  
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white&style=for-the-badge)](https://nestjs.com/)
+[![TypeORM](https://img.shields.io/badge/TypeORM-2C1E4E?logo=typeorm&logoColor=white&style=for-the-badge)](https://typeorm.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?logo=postgresql&logoColor=white&style=for-the-badge)](https://www.postgresql.org/)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?logo=swagger&logoColor=black&style=for-the-badge)](https://swagger.io/)
+[![JWT](https://img.shields.io/badge/JWT-000000?logo=jsonwebtokens&logoColor=white&style=for-the-badge)](https://jwt.io/)
+[![Bcrypt](https://img.shields.io/badge/Bcrypt-0033A0?logoColor=white&style=for-the-badge)](https://github.com/kelektiv/node.bcrypt.js)
+[![Zod](https://img.shields.io/badge/Zod-3F60AD?logoColor=white&style=for-the-badge)](https://zod.dev/)
+[![Google Maps API](https://img.shields.io/badge/Google%20Maps%20API-4285F4?logo=googlemaps&logoColor=white&style=for-the-badge)](https://developers.google.com/maps)
+[![Strava API](https://img.shields.io/badge/Strava%20API-FC4C02?logo=strava&logoColor=white&style=for-the-badge)](https://developers.strava.com/)
+[![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white&style=for-the-badge)](https://jestjs.io/)
+[![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white&style=for-the-badge)](https://eslint.org/)
+[![Prettier](https://img.shields.io/badge/Prettier-F7B93E?logo=prettier&logoColor=black&style=for-the-badge)](https://prettier.io/)
+
+</div>
+
+Aplicação backend desenvolvida em NestJS para estimar tempo de percurso, distância, calorias gastas e ganho/perda de elevação com base na velocidade média real do ciclista.
+O sistema integra dados do Strava (velocidade média geral) e do Google Maps (distância e rota), proporcionando cálculos personalizados para ciclistas de diferentes modalidades (MTB, Speed, etc.).
+
+🎯 **Status**: Concluído (v1) — Melhorias planejadas: aumentar cobertura de testes unitários com Jest.
+
+---
+
+## 📦 Tecnologias utilizadas
+
+- NestJS (backend framework)
+- TypeORM (ORM para PostgreSQL)
+- PostgreSQL (banco de dados)
+- Swagger (documentação automática da API)
+- JWT e Bcrypt (autenticação segura)
+- Zod (validação de dados)
+- Google Maps Directions API (cálculo de rotas)
+- Strava API (importação da velocidade média)
+- Jest (testes unitários e e2e)
+- ESLint + Prettier (padronização de código)
+
+---
+
+## 🛠️ Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado na máquina:
+
+- [Node.js](https://nodejs.org/) v20+
+- [NestJS CLI](https://docs.nestjs.com/cli/overview)
+- [PostgreSQL](https://www.postgresql.org/) rodando localmente ou em serviço remoto
+- Conta no [Strava Developers](https://developers.strava.com/) para criar uma aplicação OAuth
+- Chave de API do [Google Maps Platform](https://developers.google.com/maps)
+
+---
+
+## ⚙️ Configuração e Instalação
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/htamagnus/api-velox.git
+cd api-velox
+```
+
+### 2. Instale as dependências
+
+```bash
+npm install
+```
+
+### 3. Configure as variáveis de ambiente
+Crie um arquivo .env na raiz do projeto com o seguinte conteúdo:
+
+```bash
+STRAVA_CLIENT_SECRET=
+STRAVA_CLIENT_ID=
+GOOGLE_MAPS_API_KEY=
+GOOGLE_MAPS_API_URL=
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_PORT=
+STRAVA_API_URL=https://www.strava.com/api/v3
+JWT_SECRET=
+JWT_ISSUER=api-velox
+JWT_AUDIENCE=velox-client
+PORT=8080
+
+```
+
+----
+
+## 🚀 Como rodar o projeto
+
+```bash
+npm run start:dev
+```
+
+---
+
+## 📚 Documentação Swagger
+
+Após rodar o servidor, acesse:
+
+```bash
+http://localhost:3000/api
+
+```
+
+---
+
+## 🧠 Funcionalidades principais
+
+- Cadastro de altura, peso, idade do ciclista
+
+- Cadastro ou importação da velocidade média geral via Strava OAuth
+
+- Cálculo da distância e tempo estimado de rotas
+
+- Estimativa de calorias gastas e ganho/perda de elevação
+
+- Visualização de rotas integradas via Google Maps
+
+---
 
 
-### 📌 **Objetivo da V1**
+## 📌 **Objetivo da V1**
 
 Permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota ciclística com base em sua velocidade média e dados pessoais, de forma manual ou integrada com o Strava.
 
