@@ -185,9 +185,25 @@ export class AthleteService {
 
     const polyline = directions.polyline
 
-    const averageSpeed = modality === 'road' ? athlete.averageSpeedRoad : athlete.averageSpeedMtb
+    let averageSpeed: number | null = null
 
-    if (!averageSpeed) throw new AverageSpeedNotSetError(modality)
+    switch (modality) {
+      case 'road':
+        averageSpeed = athlete.averageSpeedRoad ?? null
+        break
+      case 'mtb':
+        averageSpeed = athlete.averageSpeedMtb ?? null
+        break
+      case 'general':
+        averageSpeed = athlete.averageSpeedGeneral ?? null
+        break
+      default:
+        throw new Error(`Modality not supported: ${modality}`)
+    }
+
+    if (averageSpeed == null || averageSpeed <= 0) {
+      throw new AverageSpeedNotSetError(modality)
+    }
 
     const estimatedTimeHours = distanceKm / averageSpeed
 

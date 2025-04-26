@@ -4,7 +4,7 @@ import { z } from 'zod'
 const createRouteInputDto = z.object({
   origin: z.string(),
   destination: z.string(),
-  modality: z.enum(['road', 'mtb']),
+  modality: z.enum(['road', 'mtb', 'general']),
 })
 
 const createRouteResponseDto = z.object({

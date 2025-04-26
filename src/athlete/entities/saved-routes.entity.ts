@@ -21,7 +21,7 @@ export class SavedRouteEntity {
   destination!: string
 
   @Column('varchar')
-  modality!: 'road' | 'mtb'
+  modality!: 'road' | 'mtb' | 'general'
 
   @Column('float')
   distanceKm!: number
