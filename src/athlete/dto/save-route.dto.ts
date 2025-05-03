@@ -9,6 +9,7 @@ const saveRouteSchema = z.object({
   estimatedTimeMinutes: z.number(),
   estimatedCalories: z.number(),
   elevationGain: z.number(),
+  averageSpeedUsed: z.number(),
   elevationLoss: z.number(),
   polyline: z.string(),
 })

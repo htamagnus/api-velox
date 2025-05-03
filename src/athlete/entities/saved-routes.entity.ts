@@ -36,6 +36,9 @@ export class SavedRouteEntity {
   elevationGain?: number
 
   @Column('int')
+  averageSpeedUsed!: number
+
+  @Column('int')
   elevationLoss?: number
 
   @Column('text')
