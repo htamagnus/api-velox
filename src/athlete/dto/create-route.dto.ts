@@ -13,6 +13,8 @@ const createRouteResponseDto = z.object({
   estimatedCalories: z.number(),
   elevationGain: z.number(),
   elevationLoss: z.number(),
+  averageSpeedUsed: z.number(),
+  modality: z.enum(['road', 'mtb', 'general']),
   polyline: z.string(),
 })
 
