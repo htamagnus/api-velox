@@ -15,13 +15,13 @@ const stravaActivitySchema = z.array(
 
 const stravaTokenSchema = z.object({
   access_token: z.string(),
-  refresh_token: z.string(),
-  expires_at: z.number(),
+  refresh_token: z.string().nullish(),
+  expires_at: z.number().nullish(),
   athlete: z.object({
     id: z.number(),
-    username: z.string().nullable(),
-    firstname: z.string(),
-    lastname: z.string(),
+    username: z.string().nullish(),
+    firstname: z.string().nullish(),
+    lastname: z.string().nullish(),
   }),
 })
 
@@ -39,7 +39,7 @@ export class StravaClient {
   protected stravaClientSecret: string
   protected stravaBaseUrl: string
 
-  async exchangeCodeForToken(code: string) {
+  async exchangeCodeForToken(code: string): Promise<StravaToken> {
     try {
       const response = await fetch('https://www.strava.com/oauth/token', {
         method: 'POST',
@@ -53,6 +53,11 @@ export class StravaClient {
       })
 
       const data = await response.json()
+
+      // if (data.errors?.some((e: any) => e.code === 'invalid')) {
+      //   throw new HttpException('Strava code already used or invalid', HttpStatus.BAD_REQUEST)
+      // }
+
       return stravaTokenSchema.parse(data)
     } catch (error) {
       throw new HttpException(

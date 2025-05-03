@@ -21,6 +21,7 @@ import {
   EmailAlreadyExistsError,
   InvalidCredentialsError,
   RideActivitiesNotFoundError,
+  StravaIdAlreadyExistsError,
 } from '@errors'
 import { JwtService } from '@services'
 import { calculateCalories, calculateElevationGainAndLoss } from '@utils'
@@ -46,6 +47,7 @@ export class AthleteService {
     const hashedPassword = await bcrypt.hash(data.password, 10)
 
     const athlete = this.athleteRepository.create({
+      name: data.name,
       email: data.email,
       password: hashedPassword,
     })
@@ -148,6 +150,12 @@ export class AthleteService {
 
     const stravaId = stravaAthlete.id.toString()
 
+    const existing = await this.athleteRepository.findOneBy({ stravaId })
+
+    if (existing && existing.id !== id) {
+      throw new StravaIdAlreadyExistsError()
+    }
+
     const activities = await this.stravaClient.getActivities(access_token)
 
     const rideActivities = activities.filter(a => a.type === 'Ride')
@@ -225,6 +233,8 @@ export class AthleteService {
       estimatedCalories,
       elevationGain: gain,
       elevationLoss: loss,
+      modality,
+      averageSpeedUsed: averageSpeed,
       polyline,
     }
   }
@@ -253,6 +263,7 @@ export class AthleteService {
       estimatedCalories: route.estimatedCalories,
       elevationGain: route.elevationGain ?? 0,
       elevationLoss: route.elevationLoss ?? 0,
+      averageSpeedUsed: route.averageSpeedUsed,
       polyline: route.polyline,
     }))
   }
