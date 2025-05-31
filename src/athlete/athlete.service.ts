@@ -64,6 +64,7 @@ export class AthleteService {
       token,
       expiresIn,
       athleteId: created.id,
+      hasCompletedOnboarding: false,
     }
   }
 
@@ -82,6 +83,7 @@ export class AthleteService {
       token,
       expiresIn,
       athleteId: athlete.id,
+      hasCompletedOnboarding: athlete.hasCompletedOnboarding,
     }
   }
 
@@ -105,6 +107,8 @@ export class AthleteService {
     athlete.averageSpeedRoad = data.averageSpeedRoad
     athlete.averageSpeedMtb = data.averageSpeedMtb
     athlete.averageSpeedGeneral = data.averageSpeedGeneral
+
+    athlete.hasCompletedOnboarding = true
 
     return this.athleteRepository.save(athlete)
   }

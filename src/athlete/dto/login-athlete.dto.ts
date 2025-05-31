@@ -10,6 +10,7 @@ const loginAthleteResponseDto = z.object({
   token: z.string(),
   expiresIn: z.number(),
   athleteId: z.string(),
+  hasCompletedOnboarding: z.boolean().optional(),
 })
 
 export class LoginAthleteDto extends createZodDto(loginAthleteDto) {}

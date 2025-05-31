@@ -42,6 +42,9 @@ export class AthleteEntity {
   @Column({ nullable: true })
   averageSpeedGeneralIsFromStrava?: boolean
 
+  @Column({ default: false })
+  hasCompletedOnboarding?: boolean
+
   @OneToMany(() => SavedRouteEntity, route => route.athlete)
   savedRoutes?: SavedRouteEntity[]
 }
