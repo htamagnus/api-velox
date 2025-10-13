@@ -21,6 +21,7 @@ const googleDirectionsSchema = z.object({
         }),
       ),
       overview_polyline: z.object({ points: z.string() }),
+      warnings: z.array(z.string()).optional(),
     }),
   ),
 })
@@ -35,6 +36,12 @@ const googleElevationSchema = z.object({
 
 type GoogleRoute = z.infer<typeof googleRoutesSchema>
 
+export interface GoogleRouteWithAlternatives {
+  main: GoogleRoute
+  alternatives: GoogleRoute[]
+  warnings?: string[][]
+}
+
 @Injectable()
 export class GoogleMapsClient {
   constructor(protected readonly configService: ConfigService) {
@@ -46,11 +53,16 @@ export class GoogleMapsClient {
   protected googleMapsApiUrl: string
 
   async getRoute(origin: string, destination: string): Promise<GoogleRoute> {
+    const result = await this.getRouteWithAlternatives(origin, destination)
+    return result.main
+  }
+
+  async getRouteWithAlternatives(origin: string, destination: string): Promise<GoogleRouteWithAlternatives> {
     try {
       const encodedOrigin = encodeURIComponent(origin)
       const encodedDestination = encodeURIComponent(destination)
 
-      const url = `${this.googleMapsApiUrl}/directions/json?origin=${encodedOrigin}&destination=${encodedDestination}&mode=bicycling&key=${this.googleMapsApiKey}`
+      const url = `${this.googleMapsApiUrl}/directions/json?origin=${encodedOrigin}&destination=${encodedDestination}&mode=bicycling&alternatives=true&key=${this.googleMapsApiKey}&language=pt-BR`
 
       const response = await fetch(url)
       const parsedData = googleDirectionsSchema.parse(await response.json())
@@ -59,14 +71,50 @@ export class GoogleMapsClient {
         throw new GoogleRoutesNotFoundError()
       }
 
-      const route = parsedData.routes[0]
-      const leg = route?.legs[0]
+      const mainRoute = parsedData.routes[0]
+      const mainLeg = mainRoute?.legs[0]
 
-      return googleRoutesSchema.parse({
-        distanceMeters: leg?.distance.value,
-        durationSeconds: leg?.duration.value,
-        polyline: route?.overview_polyline.points,
+      const main = googleRoutesSchema.parse({
+        distanceMeters: mainLeg?.distance.value,
+        durationSeconds: mainLeg?.duration.value,
+        polyline: mainRoute?.overview_polyline.points,
       })
+
+      const alternatives: GoogleRoute[] = []
+      const warnings: string[][] = []
+
+      // Process up to 2 alternative routes (routes 1 and 2, since 0 is main)
+      for (let i = 1; i < Math.min(parsedData.routes.length, 3); i++) {
+        const altRoute = parsedData.routes[i]
+        if (!altRoute?.legs.length) continue
+
+        const altLeg = altRoute.legs[0]
+
+        alternatives.push(
+          googleRoutesSchema.parse({
+            distanceMeters: altLeg?.distance.value,
+            durationSeconds: altLeg?.duration.value,
+            polyline: altRoute?.overview_polyline.points,
+          }),
+        )
+
+        if (altRoute.warnings && altRoute.warnings.length > 0) {
+          warnings.push(altRoute.warnings)
+        } else {
+          warnings.push([])
+        }
+      }
+
+      const result: GoogleRouteWithAlternatives = {
+        main,
+        alternatives,
+      }
+
+      if (warnings.length > 0) {
+        result.warnings = warnings
+      }
+
+      return result
     } catch (error) {
       throw new HttpException(
         `Error fetching route: ${error instanceof Error ? error.message : 'unknown error'}`,

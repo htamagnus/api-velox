@@ -14,7 +14,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 import { Repository } from 'typeorm'
 
-import { StravaClient, GoogleMapsClient } from '@clients'
+import { GoogleMapsClient, StravaClient } from '@clients'
 import {
   AthleteNotFoundError,
   AverageSpeedNotSetError,
@@ -183,6 +183,78 @@ export class AthleteService {
     return { averageSpeedGeneral: averageSpeedKmH }
   }
 
+  private async processRoute(
+    polyline: string,
+    distanceMeters: number,
+    averageSpeed: number,
+    athleteWeight: number,
+  ): Promise<{
+    distanceKm: number
+    estimatedTimeMinutes: number
+    estimatedCalories: number
+    elevationGain: number
+    elevationLoss: number
+    elevations: number[]
+  }> {
+    const distanceKm = distanceMeters / 1000
+    const estimatedTimeHours = distanceKm / averageSpeed
+    const estimatedTimeMinutes = estimatedTimeHours * 60
+
+    const estimatedCalories = calculateCalories({
+      weightKg: athleteWeight,
+      averageSpeed,
+      durationHours: estimatedTimeHours,
+    })
+
+    const elevations = await this.googleMapsClient.getElevationFromPolyline(polyline)
+    const { gain, loss } = calculateElevationGainAndLoss(elevations)
+
+    return {
+      distanceKm,
+      estimatedTimeMinutes: Math.round(estimatedTimeMinutes),
+      estimatedCalories,
+      elevationGain: gain,
+      elevationLoss: loss,
+      elevations,
+    }
+  }
+
+  private generateRouteSummary(
+    altRoute: { distanceKm: number; elevationGain: number },
+    mainRoute: { distanceKm: number; elevationGain: number },
+  ): string {
+    const distanceDiffPercent = ((altRoute.distanceKm - mainRoute.distanceKm) / mainRoute.distanceKm) * 100
+    const elevationDiffPercent =
+      mainRoute.elevationGain > 0
+        ? ((altRoute.elevationGain - mainRoute.elevationGain) / mainRoute.elevationGain) * 100
+        : 0
+
+    if (distanceDiffPercent < -5) {
+      return 'Rota mais curta'
+    }
+    if (elevationDiffPercent < -15) {
+      return 'Rota com menos subidas'
+    }
+    if (elevationDiffPercent > 20) {
+      return 'Rota com mais subidas'
+    }
+    if (distanceDiffPercent > 10) {
+      return 'Rota mais longa'
+    }
+    return 'Rota alternativa'
+  }
+
+  private createElevationProfile(
+    elevations: number[],
+    distanceKm: number,
+  ): Array<{ distance: number; elevation: number }> {
+    const totalDistanceMeters = distanceKm * 1000
+    return elevations.map((elevation, index) => ({
+      distance: Math.round((totalDistanceMeters * index) / (elevations.length - 1 || 1)),
+      elevation: Math.round(elevation),
+    }))
+  }
+
   async planRouteForAthlete(
     athleteId: string,
     dto: GetPlannedRouteInputDto,
@@ -191,11 +263,7 @@ export class AthleteService {
 
     const { origin, destination, modality } = dto
 
-    const directions = await this.googleMapsClient.getRoute(origin, destination)
-
-    const distanceKm = directions.distanceMeters / 1000
-
-    const polyline = directions.polyline
+    const directionsResult = await this.googleMapsClient.getRouteWithAlternatives(origin, destination)
 
     let averageSpeed: number | null = null
 
@@ -217,29 +285,68 @@ export class AthleteService {
       throw new AverageSpeedNotSetError(modality)
     }
 
-    const estimatedTimeHours = distanceKm / averageSpeed
-
-    const estimatedTimeMinutes = estimatedTimeHours * 60
-
-    const estimatedCalories = calculateCalories({
-      weightKg: athlete.weight,
+    // Process main route
+    const mainRouteData = await this.processRoute(
+      directionsResult.main.polyline,
+      directionsResult.main.distanceMeters,
       averageSpeed,
-      durationHours: estimatedTimeHours,
-    })
+      athlete.weight,
+    )
 
-    const elevations = await this.googleMapsClient.getElevationFromPolyline(polyline)
+    // Process alternative routes
+    const alternatives = []
+    for (let i = 0; i < directionsResult.alternatives.length; i++) {
+      const altRoute = directionsResult.alternatives[i]
+      if (!altRoute) continue
 
-    const { gain, loss } = calculateElevationGainAndLoss(elevations)
+      const altRouteData = await this.processRoute(
+        altRoute.polyline,
+        altRoute.distanceMeters,
+        averageSpeed,
+        athlete.weight,
+      )
+
+      const summary = this.generateRouteSummary(
+        { distanceKm: altRouteData.distanceKm, elevationGain: altRouteData.elevationGain },
+        { distanceKm: mainRouteData.distanceKm, elevationGain: mainRouteData.elevationGain },
+      )
+
+      const warnings: string[] = []
+      const routeWarnings = directionsResult.warnings?.[i]
+      if (routeWarnings && routeWarnings.length > 0) {
+        warnings.push(...routeWarnings)
+      }
+
+      if (altRouteData.elevationGain > mainRouteData.elevationGain * 1.2) {
+        warnings.push('Subidas mais acentuadas')
+      }
+
+      const elevationProfile = this.createElevationProfile(altRouteData.elevations, altRouteData.distanceKm)
+
+      alternatives.push({
+        distanceKm: altRouteData.distanceKm,
+        estimatedTimeMinutes: altRouteData.estimatedTimeMinutes,
+        estimatedCalories: altRouteData.estimatedCalories,
+        elevationGain: altRouteData.elevationGain,
+        elevationLoss: altRouteData.elevationLoss,
+        polyline: altRoute.polyline,
+        averageSpeedUsed: averageSpeed,
+        elevationProfile,
+        summary,
+        warnings: warnings.length > 0 ? warnings : undefined,
+      })
+    }
 
     return {
-      distanceKm,
-      estimatedTimeMinutes: Math.round(estimatedTimeMinutes),
-      estimatedCalories,
-      elevationGain: gain,
-      elevationLoss: loss,
+      distanceKm: mainRouteData.distanceKm,
+      estimatedTimeMinutes: mainRouteData.estimatedTimeMinutes,
+      estimatedCalories: mainRouteData.estimatedCalories,
+      elevationGain: mainRouteData.elevationGain,
+      elevationLoss: mainRouteData.elevationLoss,
       modality,
       averageSpeedUsed: averageSpeed,
-      polyline,
+      polyline: directionsResult.main.polyline,
+      alternatives: alternatives.length > 0 ? alternatives : undefined,
     }
   }
 
