@@ -29,6 +29,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: install and build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
       - name: deploy no elastic beanstalk (zip upload)
         env:
           EB_APP_NAME: ${{ secrets.EB_APP_NAME }}
@@ -37,7 +52,7 @@ jobs:
         run: |
           if [ -n "$EB_APP_NAME" ] && [ -n "$EB_ENV_NAME" ] && [ -n "$EB_S3_BUCKET" ]; then \
             VERSION_LABEL="${GITHUB_SHA}-${GITHUB_RUN_ID}" ; \
-            zip -r release.zip . -x "node_modules/*" "dist/*" ".git/*" ".github/*" "coverage/*" && \
+            zip -r release.zip dist package.json Procfile && \
             aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${VERSION_LABEL}.zip && \
             aws elasticbeanstalk create-application-version --application-name "$EB_APP_NAME" \
               --version-label "${VERSION_LABEL}" --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${VERSION_LABEL}.zip || echo "versão já existe, seguindo" ; \
