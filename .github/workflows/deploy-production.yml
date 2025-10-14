@@ -1,4 +1,4 @@
-name: deploy to production
+name: deploy to production (ecr/app runner ou elastic beanstalk)
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy:
-    name: build e deploy para aws app runner
+    name: build e deploy
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm == 'sim'
 
@@ -29,26 +29,50 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: login to amazon ecr
+      - name: login to amazon ecr (para fluxo ecr/app runner)
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: build, tag e push da imagem docker
+      - name: build, tag e push da imagem docker (apenas se usar ecr/app runner)
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          if [ -n "$ECR_REPOSITORY" ]; then \
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . && \
+            docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest && \
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG && \
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest && \
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT ; \
+          else \
+            echo "pulando build docker (fluxo elastic beanstalk)" ; \
+          fi
 
-      - name: deploy no app runner
+      - name: deploy no app runner (se APP_RUNNER_SERVICE_ARN definido)
         run: |
-          aws apprunner start-deployment \
-            --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }}
+          if [ -n "${{ secrets.APP_RUNNER_SERVICE_ARN }}" ]; then \
+            aws apprunner start-deployment --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }} ; \
+          else \
+            echo "APP_RUNNER_SERVICE_ARN não definido, pulando" ; \
+          fi
+
+      - name: deploy no elastic beanstalk (zip upload)
+        env:
+          EB_APP_NAME: ${{ secrets.EB_APP_NAME }}
+          EB_ENV_NAME: ${{ secrets.EB_ENV_NAME }}
+          EB_S3_BUCKET: ${{ secrets.EB_S3_BUCKET }}
+        run: |
+          if [ -n "$EB_APP_NAME" ] && [ -n "$EB_ENV_NAME" ] && [ -n "$EB_S3_BUCKET" ]; then \
+            zip -r release.zip . -x "node_modules/*" "dist/*" ".git/*" ".github/*" "coverage/*" && \
+            aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${GITHUB_SHA}.zip && \
+            aws elasticbeanstalk create-application-version --application-name "$EB_APP_NAME" \
+              --version-label ${GITHUB_SHA} --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${GITHUB_SHA}.zip && \
+            aws elasticbeanstalk update-environment --environment-name "$EB_ENV_NAME" \
+              --version-label ${GITHUB_SHA} ; \
+          else \
+            echo "variáveis do elastic beanstalk não definidas, pulando" ; \
+          fi
 
       - name: notificar sucesso
         if: success()
