@@ -1,3 +1,3 @@
-web: node -r tsconfig-paths/register dist/main.js
+web: npm run build && node -r tsconfig-paths/register dist/main.js
 
 
