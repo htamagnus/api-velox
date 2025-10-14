@@ -36,12 +36,13 @@ jobs:
           EB_S3_BUCKET: ${{ secrets.EB_S3_BUCKET }}
         run: |
           if [ -n "$EB_APP_NAME" ] && [ -n "$EB_ENV_NAME" ] && [ -n "$EB_S3_BUCKET" ]; then \
+            VERSION_LABEL="${GITHUB_SHA}-${GITHUB_RUN_ID}" ; \
             zip -r release.zip . -x "node_modules/*" "dist/*" ".git/*" ".github/*" "coverage/*" && \
-            aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${GITHUB_SHA}.zip && \
+            aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${VERSION_LABEL}.zip && \
             aws elasticbeanstalk create-application-version --application-name "$EB_APP_NAME" \
-              --version-label ${GITHUB_SHA} --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${GITHUB_SHA}.zip && \
+              --version-label "${VERSION_LABEL}" --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${VERSION_LABEL}.zip || echo "versão já existe, seguindo" ; \
             aws elasticbeanstalk update-environment --environment-name "$EB_ENV_NAME" \
-              --version-label ${GITHUB_SHA} ; \
+              --version-label "${VERSION_LABEL}" ; \
           else \
             echo "variáveis do elastic beanstalk não definidas, pulando" ; \
           fi
