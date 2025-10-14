@@ -1,0 +1,65 @@
+name: deploy to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'confirmar deploy para produção?'
+        required: true
+        default: 'sim'
+        type: choice
+        options:
+          - sim
+          - não
+
+jobs:
+  deploy:
+    name: build e deploy para aws app runner
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'sim'
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: login to amazon ecr
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: build, tag e push da imagem docker
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: deploy no app runner
+        run: |
+          aws apprunner start-deployment \
+            --service-arn ${{ secrets.APP_RUNNER_SERVICE_ARN }}
+
+      - name: notificar sucesso
+        if: success()
+        run: |
+          echo "✅ deploy realizado com sucesso!"
+          echo "📦 imagem: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:${{ github.sha }}"
+          echo "🚀 app runner está fazendo o deploy..."
+
+      - name: notificar falha
+        if: failure()
+        run: |
+          echo "❌ falha no deploy"
+          exit 1
+
