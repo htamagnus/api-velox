@@ -32,7 +32,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: setup pnpm
         uses: pnpm/action-setup@v4
@@ -41,7 +41,7 @@ jobs:
 
       - name: install and build
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
           pnpm run build
 
       - name: deploy no elastic beanstalk (zip upload)
@@ -52,7 +52,7 @@ jobs:
         run: |
           if [ -n "$EB_APP_NAME" ] && [ -n "$EB_ENV_NAME" ] && [ -n "$EB_S3_BUCKET" ]; then \
             VERSION_LABEL="${GITHUB_SHA}-${GITHUB_RUN_ID}" ; \
-            zip -r release.zip dist package.json Procfile && \
+            zip -r release.zip dist package.json Procfile .ebextensions .npmrc && \
             aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${VERSION_LABEL}.zip && \
             aws elasticbeanstalk create-application-version --application-name "$EB_APP_NAME" \
               --version-label "${VERSION_LABEL}" --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${VERSION_LABEL}.zip || echo "versão já existe, seguindo" ; \
