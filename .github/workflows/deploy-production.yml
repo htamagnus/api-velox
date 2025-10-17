@@ -2,21 +2,11 @@ name: deploy to production (elastic beanstalk)
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'confirmar deploy para produção?'
-        required: true
-        default: 'sim'
-        type: choice
-        options:
-          - sim
-          - não
 
 jobs:
   deploy:
     name: build e deploy
     runs-on: ubuntu-latest
-    if: github.event.inputs.confirm == 'sim'
 
     steps:
       - name: checkout code
@@ -62,17 +52,4 @@ jobs:
             echo "variáveis do elastic beanstalk não definidas, pulando" ; \
           fi
 
-      - name: notificar sucesso
-        if: success()
-        run: |
-          echo "✅ deploy do Elastic Beanstalk disparado com sucesso!"
-          echo "🧱 aplicação: ${{ secrets.EB_APP_NAME }}"
-          echo "🌱 ambiente: ${{ secrets.EB_ENV_NAME }}"
-          echo "🏷️ versão: ${GITHUB_SHA}"
-
-      - name: notificar falha
-        if: failure()
-        run: |
-          echo "❌ falha no deploy"
-          exit 1
 
