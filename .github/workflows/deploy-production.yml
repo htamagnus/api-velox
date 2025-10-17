@@ -52,7 +52,7 @@ jobs:
         run: |
           if [ -n "$EB_APP_NAME" ] && [ -n "$EB_ENV_NAME" ] && [ -n "$EB_S3_BUCKET" ]; then \
             VERSION_LABEL="${GITHUB_SHA}-${GITHUB_RUN_ID}" ; \
-            zip -r release.zip dist package.json Procfile .ebextensions .platform .npmrc && \
+            zip -r release.zip dist package.json .ebextensions .platform .npmrc && \
             aws s3 cp release.zip s3://$EB_S3_BUCKET/releases/${VERSION_LABEL}.zip && \
             aws elasticbeanstalk create-application-version --application-name "$EB_APP_NAME" \
               --version-label "${VERSION_LABEL}" --source-bundle S3Bucket=$EB_S3_BUCKET,S3Key=releases/${VERSION_LABEL}.zip || echo "versão já existe, seguindo" ; \
