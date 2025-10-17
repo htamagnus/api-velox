@@ -19,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
         database: configService.getOrThrow('DB_NAME'),
         entities: [AthleteEntity, SavedRouteEntity],
         synchronize: true,
+        ssl: true,
       }),
       inject: [ConfigService],
     }),
