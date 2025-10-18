@@ -2,6 +2,9 @@
   <img src="docs/images/velox-logo.svg" alt="velox logo" width="340">
 </div>
 
+</br>
+</br>
+
 <div align="center">
   
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white&style=for-the-badge)](https://nestjs.com/)
