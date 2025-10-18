@@ -32,9 +32,9 @@ O sistema integra dados do Strava (velocidade média geral) e do Google Maps (di
 
 ## sumário
 
-- [🛠️ quick-start](#quick-start)
-- [📌 requisitos e regras](#requisitos)
-- [🚢 deploy na aws](#deploy)
+- [🛠️ Quick start](#quick-start)
+- [📌 Requisitos e regras](#requisitos)
+- [🚢 Deploy na aws](#deploy)
 
 ---
 
