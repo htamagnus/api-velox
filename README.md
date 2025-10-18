@@ -1,7 +1,5 @@
-<h1 align="center" style="font-weight: bold;"> 🚴‍♂️ VELOX API — Backend para Planejamento de Rotas de Ciclismo</h1>
-
 <div align="center">
-  <img src="docs/images/velox-logo.svg" alt="velox logo" width="140">
+  <img src="docs/images/velox-logo.svg" alt="velox logo" width="340">
 </div>
 
 <div align="center">
