@@ -35,7 +35,7 @@ O sistema integra dados do Strava (velocidade média geral) e do Google Maps (di
 ---
 
 <a id="quick-start"></a>
-## 🛠️ como começar (quick start)
+## 🛠️ Como começar (quick start)
 
 este guia reúne o básico para instalar, configurar e rodar o backend localmente:
 - [docs/quick-start.md](docs/quick-start.md)
@@ -44,7 +44,7 @@ este guia reúne o básico para instalar, configurar e rodar o backend localment
 ---
 
 <a id="requisitos"></a>
-## 📌 requisitos e regras de negócio do velox
+## 📌 Requisitos e regras de negócio do velox
 
 ### objetivo da v1
 
@@ -57,6 +57,6 @@ para rf, rnf e regras de negócio, mais infos na doc:
 ---
 
 <a id="deploy"></a>
-## 🚢 deploy na aws
+## 🚢 Deploy na aws
 
 - visão geral, diagramas e decisões: [docs/deploy-architecture.md](docs/deploy-architecture.md)
