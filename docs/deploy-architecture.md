@@ -1,10 +1,28 @@
 # arquitetura de deploy - projeto velox
 
-visão geral da arquitetura de deploy do projeto velox na aws usando elastic beanstalk, aurora rds, cloudfront e amplify.
+- visão geral da arquitetura de deploy do projeto velox na aws usando elastic beanstalk, aurora rds, cloudfront e amplify.
+- o projeto foi visado em utilizar somente os recursor disponíveis no free tier da aws;
 
-## 📊 visão geral
+---
 
-### 🎨 fluxo do usuário (frontend)
+## sumário
+
+- [📊 visão geral](#visao-geral)
+- [🔧 componentes](#componentes)
+- [🔄 fluxo de deploy](#fluxo-de-deploy)
+- [📦 detalhamento dos serviços](#detalhamento-dos-servicos)
+- [🔐 segurança](#seguranca)
+- [💰 custos mensais (estimados)](#custos-mensais-estimados)
+- [📈 escalabilidade](#escalabilidade)
+- [🎯 resumo da jornada](#resumo-da-jornada-do-app-runner-ao-elastic-beanstalk)
+
+---
+
+<a id="visao-geral"></a>
+
+## visão geral
+
+### fluxo do usuário (frontend)
 
 ```mermaid
 graph TB
@@ -82,6 +100,8 @@ graph TB
   class CW monitoring
 ```
 
+---
+
 ### por que cada serviço?
 
 | serviço | motivo | alternativa considerada |
@@ -108,7 +128,9 @@ graph TB
 
 ---
 
-## 🔧 componentes
+<a id="componentes"></a>
+
+## componentes
 
 ### backend (back-velox)
 
@@ -159,8 +181,9 @@ graph TB
 - user: `postgres`
 
 ---
+<a id="fluxo-de-deploy"></a>
 
-## 🔄 fluxo de deploy
+## fluxo de deploy
 
 ### backend (manual via github actions)
 
@@ -215,7 +238,9 @@ graph TB
 
 ---
 
-## 📦 detalhamento dos serviços
+<a id="detalhamento-dos-servicos"></a>
+
+## detalhamento dos serviços
 
 ### s3 bucket: velox-eb-releases
 
@@ -261,7 +286,9 @@ cdn que fica na frente do elastic beanstalk para terminar https.
 
 ---
 
-## 🔐 segurança
+<a id="seguranca"></a>
+
+## segurança
 
 ### iam users
 
@@ -322,7 +349,7 @@ github-actions-velox           → backend deploy (eb, s3)
 
 no backend (`ALLOWED_ORIGINS`):
 ```
-http://localhost:3000,https://production.d123abc456def7.amplifyapp.com
+http://localhost:3000,https://production.amplifyapp.com
 ```
 sem espaços e sem barra final. opcionalmente, definir response headers policy no cloudfront para fallback.
 
@@ -333,7 +360,9 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 
 ---
 
-## 💰 custos mensais (estimados)
+<a id="custos-mensais-estimados"></a>
+
+## custos mensais (estimados)
 
 ### após free tier
 
@@ -361,7 +390,9 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 
 ---
 
-## 📈 escalabilidade
+<a id="escalabilidade"></a>
+
+## escalabilidade
 
 ### backend (elastic beanstalk)
 
@@ -390,66 +421,7 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 
 ---
 
-## 🚀 boas práticas
-
-### desenvolvimento
-
-- sempre testar build local antes de deploy
-- usar feature branches para desenvolvimento
-- testes automatizados no ci/cd
-
-### deploy
-
-- manter backup antes de grandes mudanças
-- monitorar métricas após deploy
-- ter plano de rollback pronto
-
-### segurança
-
-- rotacionar access keys a cada 90 dias
-- usar least privilege para iam
-- manter dependências atualizadas
-- habilitar mfa para console aws
-
-### custos
-
-- revisar billing alerts mensalmente
-- desativar recursos não utilizados
-- usar reserved instances para produção
-- otimizar queries de banco
-- configurar lifecycle policies para logs
-
----
-
-## 📚 documentação
-
-### backend
-- `/back-velox/docs/aws-setup.md` - guia completo
-- `/back-velox/docs/quick-start.md` - início rápido
-- `/back-velox/docs/deploy-checklist.md` - checklist
-
-### frontend
-- `/front-velox/docs/aws-amplify-setup.md` - guia completo
-- `/front-velox/docs/quick-start.md` - início rápido
-- `/front-velox/docs/deploy-checklist.md` - checklist
-- `/front-velox/docs/faq-deploy.md` - faq
-
-### geral
-- `/back-velox/README.md` - readme backend
-- `/front-velox/README.md` - readme frontend (está em outro repo)
-
----
-
-## 🔗 recursos úteis
-
-- [Aws console](https://console.aws.amazon.com)
-- [Aws pricing calculator](https://calculator.aws.amazon.com/)
-- [Aws status](https://status.aws.amazon.com/)
-- [Elastic beanstalk docs](https://docs.aws.amazon.com/elasticbeanstalk/)
-- [Amplify docs](https://docs.aws.amazon.com/amplify/)
-- [Rds docs](https://docs.aws.amazon.com/rds/)
-
----
+<a id="resumo-da-jornada-do-app-runner-ao-elastic-beanstalk"></a>
 
 ## resumo da jornada: do app runner ao elastic beanstalk
 
@@ -464,8 +436,8 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 **problema encontrado:**
 
 ```
-❌ app runner não está disponível no free tier
-❌ custo: ~$20-40/mês (inviável para projeto pessoal)
+X app runner não está disponível no free tier
+X custo: ~$20-40/mês (inviável para projeto pessoal)
 ```
 
 ---
@@ -501,7 +473,7 @@ código local → zip → upload s3 → eb cria version → deploy
 **solução:** cloudfront na frente do elastic beanstalk
 **como funciona:**
 ```
-frontend (https) → cloudfront (https) → eb (http) ✅
+frontend (https) → cloudfront (https) → eb (http)
 ```
 
 ---
@@ -550,30 +522,6 @@ cloudwatch:             $5       (logs)
 ────────────────────────────
 total:                  $58-76/mês
 ```
-
----
-
-### lições aprendidas
-
-1. **app runner vs elastic beanstalk:**
-   - app runner: mais moderno, mas pago
-   - elastic beanstalk: mais complexo, mas free tier
-
-2. **s3 é obrigatório para eb:**
-   - não há como fazer deploy direto
-   - s3 é usado como intermediário
-
-4. **cloudfront resolve mixed content:**
-   - frontend https + backend http = erro
-   - cloudfront termina https gratuitamente
-
-5. **iam permissions são críticas:**
-   - github actions precisa de permissões específicas
-   - usar least privilege sempre
-
-6. **free tier tem limites:**
-   - 750h/mês = 1 instância rodando o mês todo
-   - múltiplas instâncias = estoura free tier
 
 ---
 
