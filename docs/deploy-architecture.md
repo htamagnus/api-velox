@@ -7,8 +7,8 @@
 
 ## sumário
 
-1. [📊 visão geral](#visao-geral)
-[2. 🔧 componentes](#componentes)
+- [📊 visão geral](#visao-geral)
+- [🔧 componentes](#componentes)
 - [🔄 fluxo de deploy](#fluxo-de-deploy)
 - [📦 detalhamento dos serviços](#detalhamento-dos-servicos)
 - [🔐 segurança](#seguranca)
