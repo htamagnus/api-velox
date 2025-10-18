@@ -1,11 +1,13 @@
 import { AppModule } from '@core/app.module'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { LoggerInterceptor } from 'src/interceptors/logger.interceptor'
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  app.set('trust proxy', true)
   const configService = app.get(ConfigService)
 
   const allowedOriginsEnv = configService.get<string>('ALLOWED_ORIGINS')
