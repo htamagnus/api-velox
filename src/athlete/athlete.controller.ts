@@ -13,7 +13,6 @@ import {
 import { AthleteEntity } from '@athlete/entities'
 import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
 import { ZodValidationPipe } from 'nestjs-zod'
 
 import { JwtAuthGuard } from '@auth'
@@ -24,7 +23,6 @@ import { Token, TokenPayloadDto } from '@decorators'
 export class AthleteController {
   constructor(private readonly athleteService: AthleteService) {}
 
-  @Throttle({ default: { limit: 3, ttl: 3600000 } })
   @Post('/register')
   @ApiOperation({ summary: 'Register a new athlete' })
   @ApiResponse({ status: 201, description: 'Athlete registered and logged in successfully' })
@@ -32,7 +30,6 @@ export class AthleteController {
     return this.athleteService.registerAndLogin(dto)
   }
 
-  @Throttle({ default: { limit: 5, ttl: 900000 } })
   @Post('/login')
   @ApiOperation({ summary: 'Login an athlete' })
   @ApiResponse({
