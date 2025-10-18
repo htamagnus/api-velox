@@ -26,26 +26,37 @@ O sistema integra dados do Strava (velocidade média geral) e do Google Maps (di
 
 ---
 
+## sumário
+
+- [como começar](#quick-start)
+- [requisitos e regras](#requisitos)
+- [deploy na aws](#deploy)
+
+---
+
+<a id="quick-start"></a>
 ## 🛠️ como começar (quick start)
 
 este guia reúne o básico para instalar, configurar e rodar o backend localmente:
-- `docs/quick-start.md`
+- [docs/quick-start.md](docs/quick-start.md)
 
 
 ---
 
+<a id="requisitos"></a>
 ## 📌 requisitos e regras de negócio do velox
 
-## objetivo da v1
+### objetivo da v1
 
 permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota ciclística com base em sua velocidade média e dados pessoais, de forma manual ou integrada com o strava.
 
 para rf, rnf e regras de negócio, mais infos na doc:
 
-- `docs/v1/requirements.md`
+- [docs/v1/requirements.md](docs/v1/requirements.md)
 
 ---
 
+<a id="deploy"></a>
 ## 🚢 deploy na aws
 
-- visão geral, diagramas e decisões: `docs/deploy-architecture.md`
+- visão geral, diagramas e decisões: [docs/deploy-architecture.md](docs/deploy-architecture.md)
