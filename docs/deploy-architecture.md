@@ -12,7 +12,7 @@ graph TB
   U[👤 usuário<br/>browser/mobile]
 
   %% frontend
-  U -->|acessa via HTTPS| AMP[<b>AWS Amplify</b><br/>Next.js 15 + React 19<br/>+ CloudFront CDN]
+  U -->|acessa via HTTPS| AMP[<b>AWS Amplify</b><br/>Next.js<br/>+ CloudFront CDN]
   
   %% api calls
   AMP -->|chamadas à API<br/>HTTPS| CF[<b>CloudFront Distribution</b><br/>HTTPS Termination<br/>🔐 SSL/TLS]
@@ -52,48 +52,31 @@ graph TB
 ### ⚙️ fluxo do backend (api + database + ci/cd)
 
 ```mermaid
+
 graph TB
-  %% entrada via cloudfront
   CF[<b>CloudFront Distribution</b><br/>recebe requests do frontend]
-  
-  %% backend
   CF -->|encaminha para| ALB[<b>Application Load Balancer</b><br/>balanceamento de carga]
   ALB -->|distribui entre instâncias| EB[<b>Elastic Beanstalk</b><br/>NestJS + Node.js 20<br/>EC2 t3.micro/t3.small]
-  
-  %% database
-  EB -->|consultas SQL<br/>TCP 5432| RDS[(<b>Aurora RDS</b><br/>PostgreSQL 15.x<br/>💾 dados persistentes)]
-  
-  %% apis externas
+  EB -->|consultas SQL<br/>| RDS[(<b>Aurora RDS</b><br/>PostgreSQL 15.x<br/>)]
   EB -.->|REST API| STRAVA[<b>Strava API</b><br/>dados de ciclismo]
   EB -.->|REST API| GMAPS[<b>Google Maps API</b><br/>rotas e elevação]
-  
-  %% ci/cd separado
-  GH[📦 <b>GitHub Repository</b><br/>código fonte]
-  
-  GH -->|workflow manual<br/>dispatch| GHBACK[⚙️ <b>GitHub Actions</b><br/>Backend Deploy]
+  GH[<b>GitHub Repository</b><br/>código fonte]
+  GH -->|workflow manual dispatch| GHBACK[<b>GitHub Actions</b><br/>Backend Deploy]
   GHBACK -->|autentica via| IAMBACK[<b>IAM User</b><br/>github-actions-velox]
-  IAMBACK -->|upload zip| S3[<b>S3 Bucket</b><br/>velox-eb-releases<br/>📦 arquivos zip]
+  IAMBACK -->|upload zip| S3[<b>S3 Bucket</b><br/>velox-eb-releases<br/>arquivos zip]
   S3 -->|cria application version| EB
-  
-  %% opcional
-  GHBACK -.->|futuro: docker| ECR[<b>ECR Repository</b><br/>velox-api<br/>🐳 imagens docker]
-  
-  %% monitoramento
   EB -->|logs aplicação| CW[☁️ <b>CloudWatch</b><br/>Logs Backend]
   ALB -->|logs requests| CW
   RDS -.->|slow queries| CW
-
-  %% estilo com tons pastéis suaves
   classDef backend fill:#B8D4E6,stroke:#6B8EA6,stroke-width:2px,color:#2D495C
   classDef database fill:#FFD4B8,stroke:#B38A6B,stroke-width:2px,color:#5C3D2D
   classDef storage fill:#E6D4FF,stroke:#9B8AB3,stroke-width:2px,color:#4A3D5C
   classDef external fill:#E0E8EB,stroke:#8FA5AC,stroke-width:2px,color:#3D4F56
   classDef cicd fill:#FFD4E0,stroke:#B38A99,stroke-width:2px,color:#5C3D47
   classDef monitoring fill:#D4F4FF,stroke:#8AAAB3,stroke-width:2px,color:#3D565C
-
   class CF,ALB,EB,GHBACK,IAMBACK backend
   class RDS database
-  class S3,ECR storage
+  class S3 storage
   class GMAPS,STRAVA external
   class GH cicd
   class CW monitoring
@@ -331,15 +314,6 @@ github-actions-velox           → backend deploy (eb, s3)
         "arn:aws:s3:::velox-eb-releases/*"
       ]
     },
-    {
-      "effect": "allow",
-      "action": [
-        "ecr:getauthorizationtoken",
-        "ecr:batchchecklayeravailability",
-        "ecr:putimage"
-      ],
-      "resource": "*"
-    }
   ]
 }
 ```
