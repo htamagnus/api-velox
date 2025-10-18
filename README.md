@@ -20,8 +20,8 @@
 Aplicação backend desenvolvida em NestJS para estimar tempo de percurso, distância, calorias gastas e ganho/perda de elevação com base na velocidade média real do ciclista.
 O sistema integra dados do Strava (velocidade média geral) e do Google Maps (distância e rota), proporcionando cálculos personalizados para ciclistas de diferentes modalidades (MTB, Speed, etc.).
 
-🎯 **Status**: Concluído (v1).
-**Próximos passos**: Melhorias para v2.
+- 🎯 **Status**: Concluído (v1).
+- 🎯 **Próximos passos**: Melhorias para v2.
 
 
 ---
