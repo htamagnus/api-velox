@@ -1,6 +1,10 @@
 <h1 align="center" style="font-weight: bold;"> 🚴‍♂️ VELOX API — Backend para Planejamento de Rotas de Ciclismo</h1>
 
 <div align="center">
+  <img src="docs/images/velox-logo.svg" alt="velox logo" width="140">
+</div>
+
+<div align="center">
   
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white&style=for-the-badge)](https://nestjs.com/)
 [![TypeORM](https://img.shields.io/badge/TypeORM-2C1E4E?logo=typeorm&logoColor=white&style=for-the-badge)](https://typeorm.io/)
@@ -46,7 +50,7 @@ este guia reúne o básico para instalar, configurar e rodar o backend localment
 <a id="requisitos"></a>
 ## 📌 Requisitos e regras de negócio do velox
 
-### objetivo da v1
+#### objetivo da v1:
 
 permitir ao usuário calcular o tempo estimado e o gasto calórico de uma rota ciclística com base em sua velocidade média e dados pessoais, de forma manual ou integrada com o strava.
 
