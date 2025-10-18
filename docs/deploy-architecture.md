@@ -9,13 +9,13 @@ visão geral da arquitetura de deploy do projeto velox na aws usando elastic bea
 ```mermaid
 graph TB
   %% usuário
-  U[👤 usuário<br/>browser/mobile]
+  U[<b>usuário</b><br/>browser/mobile]
 
   %% frontend
   U -->|acessa via HTTPS| AMP[<b>AWS Amplify</b><br/>Next.js<br/>+ CloudFront CDN]
   
   %% api calls
-  AMP -->|chamadas à API<br/>HTTPS| CF[<b>CloudFront Distribution</b><br/>HTTPS Termination<br/>🔐 SSL/TLS]
+  AMP -->|chamadas à API<br/>HTTPS| CF[<b>CloudFront Distribution</b><br/>HTTPS Termination<br/>SSL/TLS]
   
   %% backend
   CF -->|origin HTTP| ALB[<b>Application Load Balancer</b><br/>distribuição de tráfego]
@@ -25,7 +25,7 @@ graph TB
   AMP -.->|SDK integração| GMAPS[<b>Google Maps API</b><br/>mapas e rotas]
   
   %% ci/cd frontend automático
-  GH[📦 <b>GitHub Repository</b><br/>código fonte]
+  GH[<b>GitHub Repository</b><br/>código fonte]
   GH -->|push main<br/>deploy automático| AMP
   
   %% monitoramento
