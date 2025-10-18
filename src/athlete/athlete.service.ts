@@ -72,7 +72,7 @@ export class AthleteService {
     const athlete = await this.athleteRepository.findOne({
       where: { email: dto.email },
     })
-    if (!athlete) throw new AthleteNotFoundError()
+    if (!athlete) throw new InvalidCredentialsError()
 
     const isPasswordValid = await bcrypt.compare(dto.password, athlete.password)
     if (!isPasswordValid) throw new InvalidCredentialsError()

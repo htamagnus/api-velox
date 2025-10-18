@@ -2,8 +2,8 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 
 const loginAthleteDto = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email().max(255, 'email deve ter no máximo 255 caracteres'),
+  password: z.string().min(1, 'password é obrigatório').max(255, 'password deve ter no máximo 255 caracteres'),
 })
 
 const loginAthleteResponseDto = z.object({

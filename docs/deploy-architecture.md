@@ -20,7 +20,7 @@
 
 <a id="visao-geral"></a>
 
-## visão geral
+## Visão geral
 
 ### fluxo do usuário (frontend)
 
@@ -67,7 +67,7 @@ graph TB
 
 ---
 
-### ⚙️ fluxo do backend (api + database + ci/cd)
+### fluxo do backend (api + database + ci/cd)
 
 ```mermaid
 
@@ -102,7 +102,7 @@ graph TB
 
 ---
 
-### por que cada serviço?
+### Por que cada serviço?
 
 | serviço | motivo | alternativa considerada |
 |---------|--------|------------------------|
@@ -113,7 +113,7 @@ graph TB
 | **amplify** | deploy automático do next.js com cdn global incluso | s3 + cloudfront manual |
 | **cloudfront (amplify)** | já incluso no amplify, distribui globalmente o frontend | n/a - vem junto |
 
-### por que usar o cloudfront?
+### Por que usar o cloudfront?
 
 **problema original:**
 - frontend no amplify = https (obrigatório)
@@ -130,7 +130,7 @@ graph TB
 
 <a id="componentes"></a>
 
-## componentes
+## Componentes
 
 ### backend (back-velox)
 
@@ -150,6 +150,8 @@ graph TB
 - auto scaling group
 - cloudwatch logs
 
+---
+
 ### frontend (front-velox)
 
 **tecnologia:** next.js 15 + react 19 + typescript
@@ -163,6 +165,8 @@ graph TB
 - cloudwatch logs
 - certificate manager (ssl)
 
+---
+
 ### banco de dados
 
 **tecnologia:** postgresql 15.x
@@ -175,15 +179,11 @@ graph TB
 - backup: 7 dias de retenção
 - encryption: habilitado
 
-**acesso:**
-- endpoint: `velox-db.xxxxx.us-east-1.rds.amazonaws.com:5432`
-- database: `velox`
-- user: `postgres`
-
 ---
+
 <a id="fluxo-de-deploy"></a>
 
-## fluxo de deploy
+## Fluxo de deploy
 
 ### backend (manual via github actions)
 
@@ -240,7 +240,7 @@ graph TB
 
 <a id="detalhamento-dos-servicos"></a>
 
-## detalhamento dos serviços
+## Detalhamento dos serviços
 
 ### s3 bucket: velox-eb-releases
 
@@ -273,7 +273,7 @@ o elastic beanstalk não aceita upload direto do código. o fluxo é:
 
 ---
 
-### cloudfront distribution (api)
+### Cloudfront distribution (api)
 
 **o que é:**
 cdn que fica na frente do elastic beanstalk para terminar https.
@@ -288,12 +288,12 @@ cdn que fica na frente do elastic beanstalk para terminar https.
 
 <a id="seguranca"></a>
 
-## segurança
+## Segurança
 
 ### iam users
 
 ```
-github-actions-velox           → backend deploy (eb, s3)
+github-actions-velox → backend deploy (eb, s3)
 
 ```
 
@@ -345,24 +345,11 @@ github-actions-velox           → backend deploy (eb, s3)
 }
 ```
 
-### cors
-
-no backend (`ALLOWED_ORIGINS`):
-```
-http://localhost:3000,https://production.amplifyapp.com
-```
-sem espaços e sem barra final. opcionalmente, definir response headers policy no cloudfront para fallback.
-
-### ssl/tls
-
-- **backend:** gerenciado pelo elastic beanstalk
-- **frontend:** gerenciado pelo amplify (certificate manager)
-
 ---
 
 <a id="custos-mensais-estimados"></a>
 
-## custos mensais (estimados)
+## Custos mensais (estimados)
 
 ### após free tier
 
@@ -392,7 +379,7 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 
 <a id="escalabilidade"></a>
 
-## escalabilidade
+## Escalabilidade
 
 ### backend (elastic beanstalk)
 
@@ -423,7 +410,7 @@ sem espaços e sem barra final. opcionalmente, definir response headers policy n
 
 <a id="resumo-da-jornada-do-app-runner-ao-elastic-beanstalk"></a>
 
-## resumo da jornada: do app runner ao elastic beanstalk
+## Resumo da jornada: do app runner ao elastic beanstalk
 
 **objetivo:** deploy da api nestjs na aws mantendo free tier
 
@@ -442,7 +429,7 @@ X custo: ~$20-40/mês (inviável para projeto pessoal)
 
 ---
 
-### a solução implementada
+### A solução implementada
 
 **nova escolha:** elastic beanstalk
 - dentro do free tier (750h/mês de ec2 t3.micro)
@@ -495,33 +482,6 @@ frontend (https) → cloudfront (https) → eb (http)
 - auto scaling group
 - security groups
 - cloudwatch log groups
-
----
-
-### custo mensal (estimativa)
-
-**dentro do free tier (primeiro ano):**
-```
-elastic beanstalk:        $0    (750h/mês ec2 t3.micro)
-aurora rds:               $0    (750h/mês db.t3.micro)
-amplify:                  $0    (1000 build min, 15gb data)
-s3:                       $0    (5gb storage, 20k requests)
-cloudfront:               $0    (1tb data transfer)
-────────────────────────────
-total:                    $0/mês
-```
-
-**após free tier:**
-```
-elastic beanstalk:      $15-25   (t3.small + alb)
-aurora rds:             $30      (db.t4g.small)
-amplify:                $2-5     (build + hosting)
-s3:                     $1       (storage + requests)
-cloudfront:             $5-10    (data transfer)
-cloudwatch:             $5       (logs)
-────────────────────────────
-total:                  $58-76/mês
-```
 
 ---
 

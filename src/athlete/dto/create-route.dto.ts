@@ -2,8 +2,8 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 
 const createRouteInputDto = z.object({
-  origin: z.string(),
-  destination: z.string(),
+  origin: z.string().min(1, 'origem é obrigatória').max(500, 'origem deve ter no máximo 500 caracteres'),
+  destination: z.string().min(1, 'destino é obrigatório').max(500, 'destino deve ter no máximo 500 caracteres'),
   modality: z.enum(['road', 'mtb', 'general']),
 })
 
