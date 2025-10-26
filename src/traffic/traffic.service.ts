@@ -7,10 +7,7 @@ import { TrafficData, TrafficSeverity } from './interfaces'
 
 @Injectable()
 export class TrafficService {
-  constructor(
-    private readonly googleMapsClient: GoogleMapsClient,
-  ) {}
-
+  constructor(private readonly googleMapsClient: GoogleMapsClient) {}
 
   async getTrafficForPlannedRoute(
     polyline: string,

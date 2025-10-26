@@ -27,7 +27,8 @@
       "@core/*": ["src/core/*"],
       
       "@athlete/*": ["src/athlete/*"],
-      "@traffic/*": ["src/traffic/*"]
+      "@traffic/*": ["src/traffic/*"],
+      "@weather/*": ["src/weather/*"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
