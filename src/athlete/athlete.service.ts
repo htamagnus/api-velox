@@ -188,6 +188,8 @@ export class AthleteService {
     distanceMeters: number,
     averageSpeed: number,
     athleteWeight: number,
+    athleteHeight: number,
+    athleteAge: number,
   ): Promise<{
     distanceKm: number
     estimatedTimeMinutes: number
@@ -200,14 +202,17 @@ export class AthleteService {
     const estimatedTimeHours = distanceKm / averageSpeed
     const estimatedTimeMinutes = estimatedTimeHours * 60
 
+    const elevations = await this.googleMapsClient.getElevationFromPolyline(polyline)
+    const { gain, loss } = calculateElevationGainAndLoss(elevations)
+
     const estimatedCalories = calculateCalories({
       weightKg: athleteWeight,
       averageSpeed,
       durationHours: estimatedTimeHours,
+      heightCm: athleteHeight,
+      ageYears: athleteAge,
+      elevationGainMeters: gain,
     })
-
-    const elevations = await this.googleMapsClient.getElevationFromPolyline(polyline)
-    const { gain, loss } = calculateElevationGainAndLoss(elevations)
 
     return {
       distanceKm,
@@ -285,12 +290,18 @@ export class AthleteService {
       throw new AverageSpeedNotSetError(modality)
     }
 
+    if (!athlete.height || !athlete.age || !athlete.weight) {
+      throw new Error('Athlete profile is incomplete: height, age, and weight are required')
+    }
+
     // Process main route
     const mainRouteData = await this.processRoute(
       directionsResult.main.polyline,
       directionsResult.main.distanceMeters,
       averageSpeed,
       athlete.weight,
+      athlete.height,
+      athlete.age,
     )
 
     // Process alternative routes
@@ -304,6 +315,8 @@ export class AthleteService {
         altRoute.distanceMeters,
         averageSpeed,
         athlete.weight,
+        athlete.height,
+        athlete.age,
       )
 
       const summary = this.generateRouteSummary(
