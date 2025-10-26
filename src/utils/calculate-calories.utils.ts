@@ -47,10 +47,18 @@ export function calculateCalories({
 }): number {
   const met = getMETFromSpeed(averageSpeed)
 
-  const bmr = calculateBmr(weightKg, heightCm, ageYears, isMale)
-  const aerobicCalories = (met * bmr) / 1.2 * durationHours
+  // fórmula base: MET × peso × duração (padrão ACSM)
+  let baseCalories = met * weightKg * durationHours
 
+  // calcular fator baseado em BMR para refletir idade/altura
+  const actualBmr = calculateBmr(weightKg, heightCm, ageYears, isMale)
+  const standardBmr = 1700 // bmr de pessoa média (70kg, 170cm, 30 anos, masculino)
+  const bmrAdjustmentFactor = actualBmr / standardBmr
+
+  baseCalories = baseCalories * bmrAdjustmentFactor
+
+  // calorias extras pela elevação
   const elevationCalories = (weightKg * elevationGainMeters) / 100 * 0.63
 
-  return Math.round(aerobicCalories + elevationCalories)
+  return Math.round(baseCalories + elevationCalories)
 }
