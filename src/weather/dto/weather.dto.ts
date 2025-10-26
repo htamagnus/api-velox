@@ -10,7 +10,7 @@ const getWeatherForecastInputDto = z.object({
 const weatherAlertDto = z.object({
   type: z.enum(['high_rain', 'extreme_temp', 'strong_wind']),
   severity: z.enum(['low', 'medium', 'high']),
-  message: z.string(),
+  message: z.string().optional(),
   time: z.date().optional(),
 })
 

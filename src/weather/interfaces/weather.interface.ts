@@ -9,7 +9,7 @@ export enum WeatherCondition {
 export interface WeatherAlert {
   type: 'high_rain' | 'extreme_temp' | 'strong_wind'
   severity: 'low' | 'medium' | 'high'
-  message: string
+  message?: string
   time?: Date
 }
 

@@ -43,17 +43,14 @@ export class WeatherService {
       alerts.push({
         type: 'high_rain',
         severity: forecast.rainProbability > 90 ? 'high' : 'medium',
-        message: `alta chance de chuva (${forecast.rainProbability}%), considere sair mais cedo`,
       })
     }
 
     if (forecast.temperature < 10 || forecast.temperature > 30) {
       const severity = forecast.temperature < 5 || forecast.temperature > 35 ? 'high' : 'medium'
-      const tempType = forecast.temperature < 10 ? 'frio' : 'calor'
       alerts.push({
         type: 'extreme_temp',
         severity,
-        message: `${tempType} extremo previsto (${forecast.temperature}°c)`,
       })
     }
 
@@ -61,7 +58,6 @@ export class WeatherService {
       alerts.push({
         type: 'strong_wind',
         severity: forecast.windSpeed > 40 ? 'high' : 'medium',
-        message: `vento forte (${forecast.windSpeed}km/h), cuidado em descidas`,
       })
     }
 
