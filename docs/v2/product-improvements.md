@@ -53,9 +53,8 @@
 - **parcerias**: oficinas podem ser destacadas (monetização futura)
 
 ---
----
 
-### 4. previsão de tráfego (contexto em tempo real)
+### 4. previsão de tráfego
 
 **problema**: rota planejada pode ficar congestionada quando o usuário realmente sair. sem alertas de tráfego.
 
@@ -67,14 +66,10 @@
   - "tráfego normal" - verde
   - "tráfego intenso" - amarelo
   - "congestionado" - vermelho
-- atualizar status a cada 2-5 minutos
-- alerta proativo: "tráfego intenso na sua rota em 1h. quer adiar?"
-- sugerir rota alternativa se tráfego piorar
+- alerta proativo: "tráfego intenso na sua rota em 1h. pense em talvez adiar."
 
 #### valor de negócio
-- **rota sempre relevante**: informação atual, não estática
 - **menos frustrações**: usuário sabe se vale a pena sair agora
-- **dados reais**: feedback se previsão foi precisa
 - **google maps integration**: aproveita infraestrutura existente (strava já usa)
 
 ---
