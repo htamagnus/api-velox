@@ -9,7 +9,6 @@ export interface TrafficSegment {
   endPoint: [number, number]
   severity: TrafficSeverity
   speedKmh: number
-  speedLimit: number
   duration: number
 }
 

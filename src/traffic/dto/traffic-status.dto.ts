@@ -24,7 +24,6 @@ const getTrafficOutputDto = z.object({
         endPoint: z.tuple([z.number(), z.number()]),
         severity: z.nativeEnum(TrafficSeverity),
         speedKmh: z.number(),
-        speedLimit: z.number(),
         duration: z.number(),
       }),
     ),
