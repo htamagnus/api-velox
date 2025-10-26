@@ -1,8 +1,5 @@
-import { SavedRouteEntity } from '@commons/entities'
 import { decode } from '@googlemaps/polyline-codec'
-import { Injectable, NotFoundException } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Injectable } from '@nestjs/common'
 
 import { GoogleMapsClient } from '@clients'
 
@@ -12,25 +9,16 @@ import { TrafficData, TrafficSegment, TrafficSeverity } from './interfaces'
 @Injectable()
 export class TrafficService {
   constructor(
-    @InjectRepository(SavedRouteEntity)
-    private readonly savedRouteRepository: Repository<SavedRouteEntity>,
     private readonly googleMapsClient: GoogleMapsClient,
   ) {}
 
-  async getTrafficUpdateForSavedRoute(athleteId: string, routeId: string): Promise<GetTrafficOutputDto> {
-    const savedRoute = await this.savedRouteRepository.findOne({
-      where: { athleteId, id: routeId },
-    })
 
-    if (!savedRoute) {
-      throw new NotFoundException('Route not found')
-    }
-
-    const traffic = await this.getTrafficForRoute(
-      savedRoute.polyline,
-      savedRoute.origin,
-      savedRoute.destination,
-    )
+  async getTrafficForPlannedRoute(
+    polyline: string,
+    origin: string,
+    destination: string,
+  ): Promise<GetTrafficOutputDto> {
+    const traffic = await this.getTrafficForRoute(polyline, origin, destination)
 
     return {
       traffic,

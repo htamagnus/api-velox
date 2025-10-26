@@ -9,6 +9,12 @@ const getTrafficInputDto = z.object({
   departureTime: z.string().optional(),
 })
 
+const getTrafficForRouteInputDto = z.object({
+  polyline: z.string(),
+  origin: z.string(),
+  destination: z.string(),
+})
+
 const getTrafficOutputDto = z.object({
   traffic: z.object({
     overallSeverity: z.nativeEnum(TrafficSeverity),
@@ -28,4 +34,5 @@ const getTrafficOutputDto = z.object({
 })
 
 export class GetTrafficInputDto extends createZodDto(getTrafficInputDto) {}
+export class GetTrafficForRouteInputDto extends createZodDto(getTrafficForRouteInputDto) {}
 export class GetTrafficOutputDto extends createZodDto(getTrafficOutputDto) {}
