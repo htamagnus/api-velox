@@ -6,10 +6,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { TrafficAlertEntity, TrafficHistoryEntity } from '@traffic/entities'
 import { TrafficModule } from '@traffic/traffic.module'
+import { WeatherModule } from '@weather/weather.module'
 @Module({
   imports: [
     AthleteModule,
     TrafficModule,
+    WeatherModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
