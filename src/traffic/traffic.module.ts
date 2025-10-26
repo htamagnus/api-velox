@@ -1,4 +1,3 @@
-import { SavedRouteEntity } from '@commons/entities'
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 
@@ -9,7 +8,7 @@ import { TrafficController } from './traffic.controller'
 import { TrafficService } from './traffic.service'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TrafficHistoryEntity, TrafficAlertEntity, SavedRouteEntity])],
+  imports: [TypeOrmModule.forFeature([TrafficHistoryEntity, TrafficAlertEntity])],
   controllers: [TrafficController],
   providers: [TrafficService, GoogleMapsClient],
   exports: [TrafficService],
