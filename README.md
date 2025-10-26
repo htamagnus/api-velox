@@ -21,24 +21,90 @@
 
 </div>
 
-Aplicação backend desenvolvida em NestJS para estimar tempo de percurso, distância, calorias gastas e ganho/perda de elevação com base na velocidade média real do ciclista.
-O sistema integra dados do Strava (velocidade média geral) e do Google Maps (distância e rota), proporcionando cálculos personalizados para ciclistas de diferentes modalidades (MTB, Speed, etc.).
-
-- 🎯 **Status**: Concluído (v1).
-- 🎯 **Próximos passos**: Melhorias para v2.
-
-
 ---
 
 ## sumário
 
+- [📊 Fluxograma geral](#fluxograma-geral)
 - [🛠️ Quick start](#quick-start)
 - [📌 Requisitos e regras](#requisitos)
 - [🚢 Deploy na aws](#deploy)
 
 ---
 
+Aplicação backend desenvolvida em NestJS para estimar tempo de percurso, distância, calorias gastas e ganho/perda de elevação com base na velocidade média real do ciclista.
+O sistema integra dados do Strava (velocidade média geral) e do Google Maps (distância e rota), proporcionando cálculos personalizados para ciclistas de diferentes modalidades (MTB, Speed, etc.).
+
+- 🎯 **Status**: Concluído (v1).
+- 🎯 **Próximos passos**: Melhorias para v2.
+
+---
+
+<a id="fluxograma-geral"></a>
+
+## 📊 Fluxograma geral
+
+```mermaid
+graph TB
+  %% frontend
+  USER[<b>Usuário</b><br/>Browser/Mobile]
+  FRONT[<b>Frontend</b><br/>Next.js 15.2.4<br/>React 19<br/>TypeScript]
+  
+  %% pages
+  FRONT -->|páginas| HOME["<b>Home</b><br/>Login/Register<br/>Onboarding<br/>Profile"]
+  FRONT -->|páginas| CALC["<b>Calculate</b><br/>Route Planner<br/>Elevation Profile<br/>Metrics"]
+  FRONT -->|páginas| SAVED["<b>Saved Routes</b><br/>Historic<br/>Statistics"]
+  FRONT -->|páginas| STRAVA["<b>Strava Integration</b><br/>OAuth Callback"]
+  
+  %% backend
+  BACK[<b>Backend API</b><br/>NestJS 10.x<br/>Node.js 22.x<br/>TypeScript]
+  
+  %% backend modules
+  BACK -->|modules| ATHLETE["<b>Athlete Module</b><br/>Auth/Register<br/>Profile Management<br/>JWT Tokens"]
+  BACK -->|modules| TRAFFIC["<b>Traffic Module</b><br/>Real-time Alerts<br/>Route Analysis"]
+  BACK -->|modules| WEATHER["<b>Weather Module</b><br/>Current Conditions<br/>Forecast"]
+  
+  %% database
+  DB[<b>PostgreSQL 15.x</b><br/>Aurora RDS]
+  BACK -->|queries| DB
+  
+  %% external services
+  STRAVA_API["<b>Strava API</b><br/>Activity Data<br/>Athlete Stats"]
+  GMAPS["<b>Google Maps API</b><br/>Routes<br/>Elevation<br/>Traffic"]
+  WEATHER_API["<b>Weather API</b><br/>Current/Forecast"]
+  
+  BACK -.->|integrations| STRAVA_API
+  BACK -.->|integrations| GMAPS
+  BACK -.->|integrations| WEATHER_API
+  
+  %% frontend to backend
+  FRONT -->|HTTP/HTTPS| BACK
+  
+  %% user interactions
+  USER -->|acessa| FRONT
+  
+  %% styling
+  classDef frontend fill:#B8E6D5,stroke:#6B9B87,stroke-width:2px,color:#2D5245
+  classDef backend fill:#B8D4E6,stroke:#6B8EA6,stroke-width:2px,color:#2D495C
+  classDef database fill:#FFD4B8,stroke:#B38A6B,stroke-width:2px,color:#5C3D2D
+  classDef external fill:#E0E8EB,stroke:#8FA5AC,stroke-width:2px,color:#3D4F56
+  classDef user fill:#FFF,stroke:#999,stroke-width:2px,color:#333
+  classDef pages fill:#D4F4FF,stroke:#8AAAB3,stroke-width:2px,color:#3D565C
+  classDef modules fill:#E6D4FF,stroke:#9B8AB3,stroke-width:2px,color:#4A3D5C
+  
+  class FRONT frontend
+  class BACK backend
+  class DB database
+  class STRAVA_API,GMAPS,WEATHER_API external
+  class USER user
+  class HOME,CALC,SAVED,STRAVA pages
+  class ATHLETE,TRAFFIC,WEATHER modules
+```
+
+---
+
 <a id="quick-start"></a>
+
 ## 🛠️ Como começar (quick start)
 
 este guia reúne o básico para instalar, configurar e rodar o backend localmente:
@@ -48,6 +114,7 @@ este guia reúne o básico para instalar, configurar e rodar o backend localment
 ---
 
 <a id="requisitos"></a>
+
 ## 📌 Requisitos e regras de negócio do velox
 
 #### objetivo da v1:

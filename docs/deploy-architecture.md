@@ -134,7 +134,7 @@ graph TB
 
 ### backend (back-velox)
 
-**tecnologia:** nestjs + typescript
+**tecnologia:** nestjs + typescript + node 22.x
 **deploy:** elastic beanstalk
 **região:** us-east-1 (ou configurada)
 
@@ -296,7 +296,6 @@ cdn que fica na frente do elastic beanstalk para terminar https.
 github-actions-velox → backend deploy (eb, s3)
 
 ```
-
 ### secrets (github)
 
 **backend (repository secrets):**
@@ -484,5 +483,3 @@ frontend (https) → cloudfront (https) → eb (http)
 - cloudwatch log groups
 
 ---
-
-
