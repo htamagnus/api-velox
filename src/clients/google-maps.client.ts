@@ -186,14 +186,19 @@ export class GoogleMapsClient {
 
       const element = parsedData.rows[0]?.elements[0]
 
-      if (!element || element.status !== 'OK' || !element.duration_in_traffic || !element.distance) {
-        throw new HttpException('Traffic data unavailable', HttpStatus.BAD_GATEWAY)
+      if (!element || element.status !== 'OK') {
+        throw new HttpException(`Traffic data unavailable: ${element?.status || 'unknown status'}`, HttpStatus.BAD_GATEWAY)
       }
 
-      const durationSeconds = element.duration?.value ?? element.duration_in_traffic.value
-      const durationInTrafficSeconds = element.duration_in_traffic.value
+      if (!element.distance) {
+        throw new HttpException('Distance data unavailable', HttpStatus.BAD_GATEWAY)
+      }
+
+      // Para bicycling, pode não haver duration_in_traffic. Usar duration como fallback
+      const durationSeconds = element.duration?.value ?? 0
+      const durationInTrafficSeconds = element.duration_in_traffic?.value ?? element.duration?.value ?? 0
       const distanceMeters = element.distance.value
-      const delaySeconds = durationInTrafficSeconds - durationSeconds
+      const delaySeconds = Math.max(0, durationInTrafficSeconds - durationSeconds)
 
       return {
         durationSeconds,
