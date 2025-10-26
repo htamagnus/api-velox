@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 
-import { AthleteEntity } from './athlete.entity'
+import { AthleteEntity } from '.'
 
 @Entity('saved_routes')
 export class SavedRouteEntity {

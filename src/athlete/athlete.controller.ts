@@ -1,16 +1,16 @@
 import { AthleteService } from '@athlete/athlete.service'
 import {
-    CreateAthleteDto,
-    GetPlannedRouteInputDto,
-    GetPlannedRouteResponseDto,
-    LoginAthleteDto,
-    LoginAthleteResponseDto,
-    RegisterAndLoginAthleteDto,
-    RegisterAthleteDto,
-    SaveRouteDto,
-    UpdateAthleteDto,
+  CreateAthleteDto,
+  GetPlannedRouteInputDto,
+  GetPlannedRouteResponseDto,
+  LoginAthleteDto,
+  LoginAthleteResponseDto,
+  RegisterAndLoginAthleteDto,
+  RegisterAthleteDto,
+  SaveRouteDto,
+  UpdateAthleteDto,
 } from '@athlete/dto'
-import { AthleteEntity } from '@athlete/entities'
+import { AthleteEntity } from '@commons/entities'
 import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from 'nestjs-zod'

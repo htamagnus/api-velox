@@ -55,28 +55,6 @@
 ---
 ---
 
-### 3. otimização multiobjetivo (rotas inteligentes)
-
-**problema**: rota mais rápida pode ter muito tráfego ou estar em avenida feia. sem contexto sobre alternativas.
-
-**solução**: gerar múltiplas rotas otimizadas para diferentes objetivos
-
-#### implementação
-- calcular e exibir 3 variações de rota:
-  - "rota com menos tráfego" - prioriza vias com tráfego baixo
-  - "rota mais verde" - favorece ciclovias, parques, vias arborizadas
-  - "rota bonita" - paisagem mais interessante, pontos turísticos
-- comparação visual: tempo estimado, distância, pontuação de cada critério
-- cada rota tem card com badges: "35min", "12km", "tráfego baixo ✓"
-
-#### valor de negócio
-- **diferenciação forte**: nenhum competitor oferece isso
-- **escolha informada**: usuário decide o que importa pra ele
-- **retenção**: mais tempo explorando rotas
-- **dados comportamentais**: qual tipo de rota cada usuário prefere
-
----
-
 ### 4. previsão de tráfego (contexto em tempo real)
 
 **problema**: rota planejada pode ficar congestionada quando o usuário realmente sair. sem alertas de tráfego.

@@ -8,7 +8,7 @@ import {
   SaveRouteDto,
   UpdateAthleteDto,
 } from '@athlete/dto'
-import { AthleteEntity, SavedRouteEntity } from '@athlete/entities'
+import { AthleteEntity, SavedRouteEntity } from '@commons/entities'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'

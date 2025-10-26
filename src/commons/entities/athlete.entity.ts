@@ -1,4 +1,4 @@
-import { SavedRouteEntity } from '@athlete/entities/saved-routes.entity'
+import { SavedRouteEntity } from '@commons/entities'
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('athletes')
