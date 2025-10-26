@@ -230,18 +230,18 @@ export class AthleteService {
         : 0
 
     if (distanceDiffPercent < -5) {
-      return 'Rota mais curta'
+      return 'Mais curta'
     }
     if (elevationDiffPercent < -15) {
-      return 'Rota com menos subidas'
+      return 'Menos subidas'
     }
     if (elevationDiffPercent > 20) {
-      return 'Rota com mais subidas'
+      return 'Mais subidas'
     }
     if (distanceDiffPercent > 10) {
-      return 'Rota mais longa'
+      return 'Mais longa'
     }
-    return 'Rota alternativa'
+    return 'Alternativa'
   }
 
   private createElevationProfile(
