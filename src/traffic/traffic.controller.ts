@@ -11,7 +11,7 @@ import { TrafficService } from './traffic.service'
 export class TrafficController {
   constructor(private readonly trafficService: TrafficService) {}
 
-  @Post('preview')
+  @Post('/preview')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get traffic status for a route during planning' })
