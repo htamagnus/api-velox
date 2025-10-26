@@ -34,12 +34,34 @@ const googleElevationSchema = z.object({
   ),
 })
 
+const googleDistanceMatrixSchema = z.object({
+  rows: z.array(
+    z.object({
+      elements: z.array(
+        z.object({
+          status: z.string(),
+          duration: z.object({ value: z.number() }).optional(),
+          duration_in_traffic: z.object({ value: z.number() }).optional(),
+          distance: z.object({ value: z.number() }).optional(),
+        }),
+      ),
+    }),
+  ),
+})
+
 type GoogleRoute = z.infer<typeof googleRoutesSchema>
 
 export interface GoogleRouteWithAlternatives {
   main: GoogleRoute
   alternatives: GoogleRoute[]
   warnings?: string[][]
+}
+
+export interface TrafficStatusResponse {
+  durationSeconds: number
+  durationInTrafficSeconds: number
+  distanceMeters: number
+  delaySeconds: number
 }
 
 @Injectable()
@@ -142,6 +164,46 @@ export class GoogleMapsClient {
     } catch (error) {
       throw new HttpException(
         `Error fetching elevation: ${error instanceof Error ? error.message : 'unknown error'}`,
+        HttpStatus.BAD_GATEWAY,
+      )
+    }
+  }
+
+  async getTrafficStatus(origin: string, destination: string): Promise<TrafficStatusResponse> {
+    try {
+      const encodedOrigin = encodeURIComponent(origin)
+      const encodedDestination = encodeURIComponent(destination)
+
+      const url = `${this.googleMapsApiUrl}/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&mode=bicycling&departure_time=now&key=${this.googleMapsApiKey}`
+
+      const response = await fetch(url)
+      const data = await response.json()
+      const parsedData = googleDistanceMatrixSchema.parse(data)
+
+      if (!parsedData.rows.length || !parsedData.rows[0]?.elements.length) {
+        throw new HttpException('Unable to fetch traffic data', HttpStatus.BAD_GATEWAY)
+      }
+
+      const element = parsedData.rows[0]?.elements[0]
+
+      if (!element || element.status !== 'OK' || !element.duration_in_traffic || !element.distance) {
+        throw new HttpException('Traffic data unavailable', HttpStatus.BAD_GATEWAY)
+      }
+
+      const durationSeconds = element.duration?.value ?? element.duration_in_traffic.value
+      const durationInTrafficSeconds = element.duration_in_traffic.value
+      const distanceMeters = element.distance.value
+      const delaySeconds = durationInTrafficSeconds - durationSeconds
+
+      return {
+        durationSeconds,
+        durationInTrafficSeconds,
+        distanceMeters,
+        delaySeconds,
+      }
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching traffic status: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,
       )
     }
