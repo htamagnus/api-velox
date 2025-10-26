@@ -7,7 +7,7 @@
 **solução**: integrar api de clima
 
 #### implementação
-- ao calcular rota, buscar previsão de clima para região/horário
+- na hora de calcular a rota, buscar previsão de clima para região/horário
 - mostrar cards de condições:
   - temperatura (18°C - 24°C)
   - probabilidade de chuva (20%)
