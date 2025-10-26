@@ -21,10 +21,13 @@
 
       "@decorators": ["src/decorators"],
       "@decorators/*": ["src/decorators/*"],
+
+      "@commons": ["src/commons"],
+      "@commons/*": ["src/commons/*"],
+      "@core/*": ["src/core/*"],
       
       "@athlete/*": ["src/athlete/*"],
-      "@common/*": ["src/common/*"],
-      "@core/*": ["src/core/*"]
+      "@traffic/*": ["src/traffic/*"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -48,6 +51,6 @@
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
-    "incremental": true,
+    "incremental": true
   }
 }
