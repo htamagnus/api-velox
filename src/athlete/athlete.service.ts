@@ -172,7 +172,7 @@ export class AthleteService {
 
     const averageSpeed = totalSpeed / rideActivities.length
 
-    const averageSpeedKmH = averageSpeed * 3.6
+    const averageSpeedKmH = Math.round(averageSpeed * 3.6)
 
     athlete.stravaId = stravaId
     athlete.averageSpeedGeneral = averageSpeedKmH
