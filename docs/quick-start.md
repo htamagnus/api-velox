@@ -10,7 +10,8 @@ este guia reúne o básico para instalar, configurar e rodar o backend localment
 - swagger (documentação automática da api)
 - jwt e bcrypt (autenticação)
 - zod (validação de dados)
-- google maps directions api (cálculo de rotas)
+- google maps directions, distance matrix e elevation api (rotas, tempo e elevação)
+- openweathermap (previsão do tempo)
 - strava api (importação da velocidade média)
 - jest (testes)
 - eslint + prettier (padronização)
@@ -19,11 +20,12 @@ este guia reúne o básico para instalar, configurar e rodar o backend localment
 
 ## pré-requisitos
 
-- node.js v20+
-- nestjs cli
+- node.js v22
+- pnpm 9
 - postgresql (local ou remoto)
 - conta no strava developers (app oauth)
 - chave de api do google maps platform
+- chave de api do openweathermap
 
 ---
 
@@ -39,27 +41,31 @@ cd api-velox
 ### 2) instalar dependências
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3) variáveis de ambiente
 
-crie um arquivo `.env` na raiz do projeto com o conteúdo:
+crie um arquivo `.env` na raiz do projeto com o conteúdo (todas são obrigatórias, o app não sobe sem elas):
 
 ```bash
 STRAVA_CLIENT_SECRET=
 STRAVA_CLIENT_ID=
+STRAVA_API_URL=https://www.strava.com/api/v3
 GOOGLE_MAPS_API_KEY=
-GOOGLE_MAPS_API_URL=
+GOOGLE_MAPS_API_URL=https://maps.googleapis.com/maps/api
+OPENWEATHER_API_KEY=
+OPENWEATHER_API_URL=https://api.openweathermap.org/data/2.5
 DB_HOST=
 DB_USER=
 DB_PASSWORD=
 DB_NAME=
-DB_PORT=
-STRAVA_API_URL=https://www.strava.com/api/v3
+DB_PORT=5432
+DB_SSL=false
 JWT_SECRET=
 JWT_ISSUER=api-velox
 JWT_AUDIENCE=velox-client
+ALLOWED_ORIGINS=http://localhost:3000
 PORT=8080
 ```
 
@@ -68,7 +74,7 @@ PORT=8080
 ## como rodar o projeto
 
 ```bash
-npm run start:dev
+pnpm start:dev
 ```
 
 ---
@@ -86,4 +92,4 @@ http://localhost:8080/docs
 ## próximos passos
 
 - requisitos e regras (rf/rnf/rb): `docs/v1/requirements.md`
-- deploy (arquitetura): `docs/deploy-architecture.md`
+- deploy: seção "deploy" do `README.md`

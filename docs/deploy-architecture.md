@@ -1,5 +1,7 @@
 # arquitetura de deploy - projeto velox
 
+> arquitetura antiga, substituída em outubro de 2026 com o fim do free tier da aws. a hospedagem atual está no [README](../README.md#deploy).
+
 - visão geral da arquitetura de deploy do projeto velox na aws usando elastic beanstalk, aurora rds, cloudfront e amplify.
 - o projeto foi visado em utilizar somente os recursor disponíveis no free tier da aws;
 
