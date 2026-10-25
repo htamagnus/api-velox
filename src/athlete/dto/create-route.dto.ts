@@ -34,6 +34,7 @@ const createRouteResponseDto = z.object({
   averageSpeedUsed: z.number(),
   modality: z.enum(['road', 'mtb', 'general']),
   polyline: z.string(),
+  elevationProfile: z.array(elevationProfilePointDto),
   alternatives: z.array(alternativeRouteDto).optional(),
 })
 

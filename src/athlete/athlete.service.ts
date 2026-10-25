@@ -359,6 +359,7 @@ export class AthleteService {
       modality,
       averageSpeedUsed: averageSpeed,
       polyline: directionsResult.main.polyline,
+      elevationProfile: this.createElevationProfile(mainRouteData.elevations, mainRouteData.distanceKm),
       alternatives: alternatives.length > 0 ? alternatives : undefined,
     }
   }
