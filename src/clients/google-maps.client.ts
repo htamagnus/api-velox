@@ -3,7 +3,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { z } from 'zod'
 
-import { GoogleElevationNotFoundError, GoogleRoutesNotFoundError } from '@errors'
+import { GoogleElevationNotFoundError, GoogleQuotaExceededError, GoogleRoutesNotFoundError } from '@errors'
+
+// toda resposta das apis web do google traz um status; erro vem com http 200 e listas vazias
+const googleStatusSchema = z.object({
+  status: z.string(),
+  error_message: z.string().optional(),
+})
+
+// a cota diária travada no console devolve um destes em vez de cobrar
+const GOOGLE_QUOTA_STATUSES = ['OVER_QUERY_LIMIT', 'OVER_DAILY_LIMIT']
 
 const googleRoutesSchema = z.object({
   distanceMeters: z.number(),
@@ -74,6 +83,22 @@ export class GoogleMapsClient {
   protected googleMapsApiKey: string
   protected googleMapsApiUrl: string
 
+  // OK e ZERO_RESULTS/NOT_FOUND seguem: quem chamou trata a lista vazia como "não encontrado"
+  private assertGoogleStatus(data: unknown): void {
+    const { status, error_message } = googleStatusSchema.parse(data)
+
+    if (GOOGLE_QUOTA_STATUSES.includes(status)) {
+      throw new GoogleQuotaExceededError(status)
+    }
+
+    if (!['OK', 'ZERO_RESULTS', 'NOT_FOUND'].includes(status)) {
+      throw new HttpException(
+        `Google Maps returned ${status}: ${error_message ?? 'no details'}`,
+        HttpStatus.BAD_GATEWAY,
+      )
+    }
+  }
+
   async getRoute(origin: string, destination: string): Promise<GoogleRoute> {
     const result = await this.getRouteWithAlternatives(origin, destination)
     return result.main
@@ -87,7 +112,9 @@ export class GoogleMapsClient {
       const url = `${this.googleMapsApiUrl}/directions/json?origin=${encodedOrigin}&destination=${encodedDestination}&mode=bicycling&alternatives=true&key=${this.googleMapsApiKey}&language=pt-BR`
 
       const response = await fetch(url)
-      const parsedData = googleDirectionsSchema.parse(await response.json())
+      const data: unknown = await response.json()
+      this.assertGoogleStatus(data)
+      const parsedData = googleDirectionsSchema.parse(data)
 
       if (!parsedData.routes.length || !parsedData.routes[0]?.legs.length) {
         throw new GoogleRoutesNotFoundError()
@@ -138,6 +165,7 @@ export class GoogleMapsClient {
 
       return result
     } catch (error) {
+      if (error instanceof HttpException) throw error
       throw new HttpException(
         `Error fetching route: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,
@@ -157,11 +185,14 @@ export class GoogleMapsClient {
         `${this.googleMapsApiUrl}/elevation/json?locations=${locations}&key=${this.googleMapsApiKey}`,
       )
 
-      const parsedData = googleElevationSchema.parse(await response.json())
-      if (!parsedData.results) throw new GoogleElevationNotFoundError()
+      const data: unknown = await response.json()
+      this.assertGoogleStatus(data)
+      const parsedData = googleElevationSchema.parse(data)
+      if (!parsedData.results.length) throw new GoogleElevationNotFoundError()
 
       return parsedData.results.map(r => r.elevation)
     } catch (error) {
+      if (error instanceof HttpException) throw error
       throw new HttpException(
         `Error fetching elevation: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,
@@ -177,7 +208,8 @@ export class GoogleMapsClient {
       const url = `${this.googleMapsApiUrl}/distancematrix/json?origins=${encodedOrigin}&destinations=${encodedDestination}&mode=bicycling&departure_time=now&key=${this.googleMapsApiKey}`
 
       const response = await fetch(url)
-      const data = await response.json()
+      const data: unknown = await response.json()
+      this.assertGoogleStatus(data)
       const parsedData = googleDistanceMatrixSchema.parse(data)
 
       if (!parsedData.rows.length || !parsedData.rows[0]?.elements.length) {
@@ -207,6 +239,7 @@ export class GoogleMapsClient {
         delaySeconds,
       }
     } catch (error) {
+      if (error instanceof HttpException) throw error
       throw new HttpException(
         `Error fetching traffic status: ${error instanceof Error ? error.message : 'unknown error'}`,
         HttpStatus.BAD_GATEWAY,

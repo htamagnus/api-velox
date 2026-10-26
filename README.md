@@ -169,7 +169,7 @@ uma chave para cada lado, cada uma liberada só para as apis que usa:
 | `velox-back` | render (`GOOGLE_MAPS_API_KEY`) | Directions, Distance Matrix, Maps Elevation | nenhuma: chamadas do servidor não têm site de origem |
 | `velox-app` | vercel (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`) | Maps JavaScript, Places API (New), Directions | sites: `https://web-velox.vercel.app/*` e `http://localhost:3000/*` |
 
-- ao bater o limite, a api devolve erro em vez de cobrar.
+- ao bater o limite, a api devolve erro em vez de cobrar: http 200 com `status: OVER_QUERY_LIMIT` (ou `OVER_DAILY_LIMIT`). o back lê esse status e responde `503` com `code: GOOGLE_QUOTA_EXCEEDED`; o front mostra "tente de novo amanhã".
 - alerta de orçamento de R$ 5 na conta de faturamento.
 - usar uma api nova do google no código exige liberá-la na chave do lado que chama e definir o limite diário dela.
 
