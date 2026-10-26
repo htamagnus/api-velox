@@ -5,6 +5,7 @@ import {
   LoginAthleteDto,
   LoginAthleteResponseDto,
   RegisterAthleteDto,
+  SavedRouteDto,
   SaveRouteDto,
   UpdateAthleteDto,
 } from '@athlete/dto'
@@ -21,6 +22,7 @@ import {
   EmailAlreadyExistsError,
   InvalidCredentialsError,
   RideActivitiesNotFoundError,
+  SavedRouteNotFoundError,
   StravaIdAlreadyExistsError,
 } from '@errors'
 import { JwtService } from '@services'
@@ -373,13 +375,15 @@ export class AthleteService {
     await this.savedRouteRepository.save(savedRoute)
   }
 
-  async getSavedRoutesForAthlete(athleteId: string): Promise<SaveRouteDto[]> {
+  async getSavedRoutesForAthlete(athleteId: string): Promise<SavedRouteDto[]> {
     const savedRoutes = await this.savedRouteRepository.find({
       where: { athleteId },
       order: { createdAt: 'DESC' },
     })
 
     return savedRoutes.map(route => ({
+      id: route.id,
+      createdAt: route.createdAt,
       origin: route.origin,
       destination: route.destination,
       modality: route.modality,
@@ -391,5 +395,14 @@ export class AthleteService {
       averageSpeedUsed: route.averageSpeedUsed,
       polyline: route.polyline,
     }))
+  }
+
+  async deleteSavedRouteForAthlete(athleteId: string, routeId: string): Promise<void> {
+    // o athleteId no filtro impede apagar a rota de outra pessoa
+    const { affected } = await this.savedRouteRepository.delete({ id: routeId, athleteId })
+
+    if (!affected) {
+      throw new SavedRouteNotFoundError()
+    }
   }
 }

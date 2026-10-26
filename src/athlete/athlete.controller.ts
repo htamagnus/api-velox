@@ -7,11 +7,25 @@ import {
   LoginAthleteResponseDto,
   RegisterAndLoginAthleteDto,
   RegisterAthleteDto,
+  SavedRouteDto,
   SaveRouteDto,
   UpdateAthleteDto,
 } from '@athlete/dto'
 import { AthleteEntity } from '@commons/entities'
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from 'nestjs-zod'
 
@@ -147,9 +161,23 @@ export class AthleteController {
   @ApiResponse({
     status: 200,
     description: 'Returns all saved routes for the athlete',
-    type: [SaveRouteDto],
+    type: [SavedRouteDto],
   })
-  async getSavedRoutes(@Token() tokenPayload: TokenPayloadDto): Promise<SaveRouteDto[]> {
+  async getSavedRoutes(@Token() tokenPayload: TokenPayloadDto): Promise<SavedRouteDto[]> {
     return this.athleteService.getSavedRoutesForAthlete(tokenPayload.athleteId)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/routes/saved/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a saved route' })
+  @ApiResponse({ status: 204, description: 'Route deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Saved route not found' })
+  async deleteSavedRoute(
+    @Token() tokenPayload: TokenPayloadDto,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<void> {
+    return this.athleteService.deleteSavedRouteForAthlete(tokenPayload.athleteId, id)
   }
 }

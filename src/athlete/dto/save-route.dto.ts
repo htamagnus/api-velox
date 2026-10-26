@@ -15,3 +15,10 @@ const saveRouteSchema = z.object({
 })
 
 export class SaveRouteDto extends createZodDto(saveRouteSchema) {}
+
+const savedRouteSchema = saveRouteSchema.extend({
+  id: z.string().uuid(),
+  createdAt: z.date(),
+})
+
+export class SavedRouteDto extends createZodDto(savedRouteSchema) {}
